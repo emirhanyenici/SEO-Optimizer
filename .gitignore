@@ -36,6 +36,21 @@ yarn-error.log*
 # vercel
 .vercel
 
+# generated graph output
+graphify-out/
+
+# captured HTTP responses (may contain session tokens)
+headers.txt
+css.txt
+svg.txt
+
+# personal documents
+*.docx
+
+# local screenshots
+*.PNG
+*.png
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
