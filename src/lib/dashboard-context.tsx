@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { AgentId, AgentResult, SSEEvent } from '@/types/agents';
 import type { FinalSEOReport } from '@/types/seo';
+import { buildPartialReport } from './build-fallback-report';
 import {
   DashboardRun,
   DashboardState,
@@ -18,7 +19,11 @@ interface DashboardContextValue {
   runs: DashboardRun[];
   allEvents: Array<SSEEvent & { runId: string; runUrl: string }>;
   startRun: (url: string, keyword?: string) => void;
-  startAgentRun: (agentId: AgentId, url: string, instructions?: string) => void;
+  startAgentRun: (
+    agentId: AgentId,
+    url: string,
+    opts?: { keyword?: string; competitorUrls?: string[]; instructions?: string }
+  ) => void;
   stopRun: (id: string) => void;
   deleteRun: (id: string) => void;
   clearCompleted: () => void;
@@ -41,6 +46,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const consumeSSE = useCallback(
     async (runId: string, endpoint: string, body: object, abortController: AbortController) => {
+      const startedAt = Date.now();
+      const { url, keyword } = body as { url: string; keyword?: string };
+      // Accumulate every agent result as it lands, so that if the stream ends
+      // before a `final_report`, we can still build a partial report from the
+      // agents that did finish (even just one) instead of discarding the work.
+      const completed = new Map<AgentId, AgentResult>();
+      let gotFinalReport = false;
+
+      // Build + dispatch a partial report from finished agents, or fail the run
+      // if nothing finished. Used when the stream ends / errors without a report.
+      const finishWithoutReport = (fallbackError: string) => {
+        if (completed.size > 0) {
+          const report = buildPartialReport({
+            url, keyword,
+            agentResults: [...completed.values()],
+            durationMs: Date.now() - startedAt,
+          });
+          dispatch({ type: 'COMPLETE_RUN_PARTIAL', runId, report, completedAt: Date.now() });
+        } else {
+          dispatch({ type: 'FAIL_RUN', runId, error: fallbackError });
+        }
+      };
+
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
@@ -77,6 +105,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
                 });
               } else if (event.type === 'agent_complete' && event.agentId) {
                 const data = event.data as { result: AgentResult; durationMs: number };
+                completed.set(event.agentId, data.result);
                 dispatch({
                   type: 'UPDATE_AGENT', runId, agentId: event.agentId,
                   update: { status: 'complete', completedAt: event.timestamp, result: data.result },
@@ -89,16 +118,19 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
                 });
               } else if (event.type === 'final_report') {
                 const data = event.data as { report: FinalSEOReport };
+                gotFinalReport = true;
                 dispatch({ type: 'COMPLETE_RUN', runId, report: data.report, completedAt: event.timestamp });
               }
             } catch {}
           }
         }
 
-        dispatch({ type: 'FAIL_RUN', runId, error: 'Stream ended without final report' });
+        // Stream closed. If no `final_report` ever arrived (timeout, server
+        // killed mid-run), salvage a partial report from finished agents.
+        if (!gotFinalReport) finishWithoutReport('Stream ended without final report');
       } catch (err) {
         if ((err as Error).name === 'AbortError') return;
-        dispatch({ type: 'FAIL_RUN', runId, error: (err as Error).message });
+        if (!gotFinalReport) finishWithoutReport((err as Error).message);
       } finally {
         abortRefs.current.delete(runId);
       }
@@ -126,12 +158,17 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
 
   const startAgentRun = useCallback(
-    (agentId: AgentId, url: string, instructions?: string) => {
+    (
+      agentId: AgentId,
+      url: string,
+      opts?: { keyword?: string; competitorUrls?: string[]; instructions?: string }
+    ) => {
       const id = crypto.randomUUID();
       const agentStates = makeInitialAgentStates();
       agentStates[agentId] = { id: agentId, status: 'pending' };
       const run: DashboardRun = {
         id, url,
+        keyword: opts?.keyword,
         startedAt: Date.now(),
         status: 'running',
         agentStates,
@@ -142,7 +179,17 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'START_RUN', run });
       const ctrl = new AbortController();
       abortRefs.current.set(id, ctrl);
-      consumeSSE(id, `/api/agent/${agentId}`, { url, instructions }, ctrl);
+      consumeSSE(
+        id,
+        `/api/agent/${agentId}`,
+        {
+          url,
+          keyword: opts?.keyword,
+          competitorUrls: opts?.competitorUrls,
+          instructions: opts?.instructions,
+        },
+        ctrl
+      );
     },
     [consumeSSE]
   );

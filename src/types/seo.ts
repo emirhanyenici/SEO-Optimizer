@@ -3,6 +3,7 @@ import type { AgentId, AgentResult, Finding } from './agents';
 export interface AnalysisRequest {
   url: string;
   keyword?: string;
+  competitorUrls?: string[];
 }
 
 export interface PriorityAction {
@@ -34,6 +35,9 @@ export interface FinalSEOReport {
   overallScore: number;
   summary: string;
   blog_article?: BlogArticleRaw;
+  // True when the report was assembled from the agents that finished rather
+  // than from the LLM synthesis step (stream cut off, or synthesis skipped).
+  partial?: boolean;
 }
 
 export interface TechnicalAuditRaw {

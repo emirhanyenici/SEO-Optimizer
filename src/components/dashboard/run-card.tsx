@@ -79,6 +79,14 @@ export function RunCard({ run, onViewDetails }: Props) {
                 ? AGENT_LABELS[run.singleAgentId]
                 : 'Full Analysis'}
             </span>
+            {run.partial && (
+              <span
+                className="text-xs px-1.5 py-0.5 rounded font-medium bg-amber-500/15 text-amber-300"
+                title="Bazı ajanlar tamamlanmadı — rapor tamamlanan ajanlardan oluşturuldu"
+              >
+                Kısmi
+              </span>
+            )}
           </div>
           <p className="text-sm font-medium text-white truncate max-w-[180px]" title={run.url}>
             {hostname}

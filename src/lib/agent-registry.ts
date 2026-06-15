@@ -11,6 +11,7 @@ import { AI_VISIBILITY_SYSTEM_PROMPT } from '@/agents/ai-visibility/system-promp
 import { COMPANY_INTELLIGENCE_SYSTEM_PROMPT } from '@/agents/company-intelligence/system-prompt';
 import { FEEDBACK_ANALYZER_SYSTEM_PROMPT } from '@/agents/feedback-analyzer/system-prompt';
 import { BLOG_WRITER_SYSTEM_PROMPT } from '@/agents/blog-writer/system-prompt';
+import { GEO_SYSTEM_PROMPT } from '@/agents/geo/system-prompt';
 
 const SYSTEM_PROMPTS: Record<AgentId, string> = {
   'technical-auditor': TECHNICAL_AUDITOR_SYSTEM_PROMPT,
@@ -24,6 +25,7 @@ const SYSTEM_PROMPTS: Record<AgentId, string> = {
   'company-intelligence': COMPANY_INTELLIGENCE_SYSTEM_PROMPT,
   'feedback-analyzer': FEEDBACK_ANALYZER_SYSTEM_PROMPT,
   'blog-writer': BLOG_WRITER_SYSTEM_PROMPT,
+  'geo': GEO_SYSTEM_PROMPT,
 };
 
 export function getAgentSystemPrompt(agentId: AgentId): string {

@@ -44,6 +44,12 @@ const AGENT_GROUPS: { section: string; agents: AgentConfig[] }[] = [
     ],
   },
   {
+    section: 'GEO',
+    agents: [
+      { id: 'geo', label: 'GEO', desc: 'AI alıntı hazırlığı, rakiplerle karşılaştırma', color: 'bg-fuchsia-500', initial: 'G' },
+    ],
+  },
+  {
     section: 'İÇERİK',
     agents: [
       { id: 'blog-writer', label: 'Blog Writer', desc: 'SEO odaklı tam blog yazısı üretir', color: 'bg-emerald-500', initial: 'B' },

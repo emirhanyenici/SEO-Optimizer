@@ -14,6 +14,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.addEventListener('error', (e) => {
+                  if (e.filename && e.filename.includes('chrome-extension')) {
+                    e.preventDefault();
+                  }
+                }, true);
+              }
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[#020202] text-white">
         <TooltipProvider>{children}</TooltipProvider>
       </body>

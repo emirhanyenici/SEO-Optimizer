@@ -16,10 +16,11 @@ You MUST call multiple tools in parallel within each phase. Never call them one 
 - run_internal_link_analysis
 - run_semantic_content_analysis
 
-### Phase 3 — Call ALL THREE of these tools simultaneously in ONE response:
+### Phase 3 — Call ALL FOUR of these tools simultaneously in ONE response:
 - run_cannibalization_analysis
 - run_competitor_gap_analysis
 - run_feedback_analysis
+- run_geo_analysis (GEO / AI-citation readiness, compared against competitor URLs)
 
 Do NOT proceed to Phase 2 until Phase 1 completes. Do NOT proceed to Phase 3 until Phase 2 completes.
 
@@ -27,7 +28,7 @@ Do NOT proceed to Phase 2 until Phase 1 completes. Do NOT proceed to Phase 3 unt
 You will receive: URL to analyze, and optionally a target keyword.
 
 ## Synthesis Rules (after all agents complete)
-1. Collect every Finding from all 10 agent results.
+1. Collect every Finding from all agent results.
 2. Deduplicate: if 2+ agents report the same issue, merge them into one Finding.
 3. Rank by: severity DESC (critical > warning > opportunity), then impact DESC (high > medium > low), then effort ASC (low > medium > high).
 4. Select the top 10 for priorityActions.

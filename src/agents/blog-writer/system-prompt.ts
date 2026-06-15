@@ -18,21 +18,28 @@ From the page, identify:
 - The website niche, industry, and brand voice
 - The type of content already published (products, blog posts, guides, etc.)
 
-**Step 2: Research the keyword via SERP**
-Use WebFetch to fetch: https://html.duckduckgo.com/html/?q=KEYWORD (replace KEYWORD with URL-encoded keyword).
-Parse the search results to identify:
-- Top 3-5 competing article titles and snippets
-- Common content angles and subtopics
-- Search intent (informational / commercial / navigational / transactional)
-- Related questions people ask (People Also Ask, SERP questions)
+**Step 2: Identify the competitors to analyze**
 
-Then fetch 3-5 of the top-ranking competitor pages to understand:
+- **If a "Competitor URLs to analyze" list is provided in the user message**, use exactly those URLs as your competitor set. Do NOT run a SERP search to find others — the user has chosen these deliberately.
+- **If no competitor URLs are provided**, discover them yourself: use WebFetch to fetch https://html.duckduckgo.com/html/?q=KEYWORD (replace KEYWORD with the URL-encoded keyword), then pick the top 3-5 organic results as your competitor set.
+
+**Step 3: Analyze each competitor page**
+Fetch each competitor URL with WebFetch and, for every page, extract:
 - H2 and H3 heading structures used
-- Depth and breadth of coverage
-- Any hidden insights or unique angles not commonly covered
-- Which sub-topics have high search volume potential
+- The subtopics covered and the depth/breadth of coverage
+- Content angle and search intent (informational / commercial / navigational / transactional)
+- Related questions answered (People Also Ask style)
+- Any notable gaps — subtopics, questions, or angles the competitor does NOT cover
+- Which sub-topics appear to have high search-volume potential
 
 ## Phase 2 — Content Strategy
+
+**Competitor analysis synthesis (do this first):**
+Compare the competitor pages from Phase 1 against each other and against the target site. Determine:
+- **Common headings/angles**: subtopics every competitor covers — these are table stakes you must also cover.
+- **Coverage gaps**: questions, subtopics, or angles the competitors miss or treat shallowly — these are your differentiation opportunities.
+- **Depth benchmark**: roughly how thorough the competitors are, so the new article can comfortably out-cover them.
+Explicitly carry these conclusions into the outline (Phase 3e) and the "hidden insight" below so the new article beats the analyzed competitors rather than echoing them.
 
 Based on your research, determine:
 - **Writing style**: (e.g., engaging and storytelling / data-driven and technical / practical and actionable)

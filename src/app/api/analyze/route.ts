@@ -1,54 +1,81 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
 import { runSubAgent } from '@/lib/run-sub-agent';
 import { encodeSSE } from '@/lib/sse';
+import { cleanHtml } from '@/lib/clean-html';
+import { createAnthropicClient } from '@/lib/anthropic-client';
+import { ANALYSIS_MODEL, MAX_TOKENS } from '@/lib/model';
+import { extractJSON } from '@/lib/extract-json';
 import { SYNTHESIS_SYSTEM_PROMPT } from '@/agents/orchestrator/synthesis-prompt';
+import {
+  type SynthesisCore,
+  buildFallbackSynthesis,
+  assembleReport,
+  collectFindings,
+  scoreFindings,
+} from '@/lib/build-fallback-report';
 import type { AgentId, AgentResult } from '@/types/agents';
-import type { AnalysisRequest, BlogArticleRaw, FinalSEOReport } from '@/types/seo';
+import type { AnalysisRequest } from '@/types/seo';
+import type Anthropic from '@anthropic-ai/sdk';
 
 export const runtime = 'nodejs';
-export const maxDuration = 300;
+// The full pipeline (3 sequential phases + synthesis, ~11 multi-turn agents)
+// can run for several minutes. Note: Vercel Hobby caps this at 300s regardless;
+// a higher value only takes effect on self-hosted / higher Vercel tiers.
+export const maxDuration = 800;
 
-const client = new Anthropic();
+const client = createAnthropicClient();
 
-const PHASE_1: AgentId[] = ['technical-auditor', 'page-speed', 'meta-optimizer', 'ai-visibility', 'company-intelligence'];
-const PHASE_2: AgentId[] = ['internal-link', 'semantic-content'];
-const PHASE_3: AgentId[] = ['cannibalization', 'competitor-gap', 'feedback-analyzer'];
-const PHASE_4: AgentId[] = ['blog-writer'];
-
-function extractJSON(text: string): string {
-  const codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlock) return codeBlock[1].trim();
-  const rawJSON = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-  if (rawJSON) return rawJSON[1].trim();
-  return text.trim();
-}
+// Phases run sequentially (to stay within API rate limits), but every agent
+// inside a phase runs in parallel. Page-based agents go first, then agents that
+// hit external data (SERP), then the blog writer which builds on prior findings.
+const PHASE_1: AgentId[] = [
+  'technical-auditor', 'page-speed', 'meta-optimizer', 'internal-link',
+  'semantic-content', 'ai-visibility', 'company-intelligence',
+];
+const PHASE_2: AgentId[] = ['cannibalization', 'competitor-gap', 'feedback-analyzer', 'geo'];
+const PHASE_3: AgentId[] = ['blog-writer'];
 
 async function runSynthesis(
   agentResults: AgentResult[],
   url: string,
   keyword: string | undefined,
-  durationMs: number,
-): Promise<FinalSEOReport> {
-  const userPrompt = `Synthesize the following 10 SEO agent results for URL: ${url}${keyword ? `\nKeyword: ${keyword}` : ''}\n\nAgent results:\n${JSON.stringify(agentResults, null, 2)}`;
+): Promise<SynthesisCore> {
+  // Send only findings (not the bulky `raw` blocks) — the synthesizer ranks
+  // findings, and trimming the input keeps us well clear of token limits.
+  const slim = agentResults.map(r => ({ agentId: r.agentId, findings: r.findings }));
+  const userPrompt = `Synthesize the following ${agentResults.length} SEO agent results for URL: ${url}${keyword ? `\nKeyword: ${keyword}` : ''}\n\nAgent findings:\n${JSON.stringify(slim, null, 2)}`;
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 8096,
-    system: SYNTHESIS_SYSTEM_PROMPT,
+    model: ANALYSIS_MODEL,
+    max_tokens: MAX_TOKENS,
+    system: [
+      {
+        type: 'text',
+        text: SYNTHESIS_SYSTEM_PROMPT,
+        cache_control: { type: 'ephemeral' },
+      },
+    ],
     messages: [{ role: 'user', content: userPrompt }],
   });
 
   const textBlock = response.content.find(c => c.type === 'text') as Anthropic.TextBlock | undefined;
   const rawText = textBlock?.text ?? '';
-  const report = JSON.parse(extractJSON(rawText)) as FinalSEOReport;
-  report.totalDurationMs = durationMs;
-  return report;
+  let parsed: Partial<SynthesisCore>;
+  try {
+    parsed = JSON.parse(extractJSON(rawText)) as Partial<SynthesisCore>;
+  } catch {
+    throw new Error(`Synthesis output parse failed: ${rawText.slice(0, 300)}`);
+  }
+  return {
+    priorityActions: Array.isArray(parsed.priorityActions) ? parsed.priorityActions.slice(0, 10) : [],
+    overallScore: typeof parsed.overallScore === 'number' ? parsed.overallScore : scoreFindings(collectFindings(agentResults)),
+    summary: typeof parsed.summary === 'string' ? parsed.summary : '',
+  };
 }
 
 export async function POST(req: NextRequest) {
   const body: AnalysisRequest = await req.json();
-  const { url, keyword } = body;
+  const { url, keyword, competitorUrls } = body;
 
   if (!url) {
     return new Response(JSON.stringify({ error: 'URL is required' }), { status: 400 });
@@ -67,10 +94,24 @@ export async function POST(req: NextRequest) {
         }
       };
 
+      let pageContent: string | undefined;
+      try {
+        const res = await fetch(url, {
+          signal: AbortSignal.timeout(15_000),
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SEOBot/1.0)' },
+        });
+        const text = await res.text();
+        pageContent = cleanHtml(text);
+        send({ type: 'page_fetched', data: { url, contentLength: pageContent.length } });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        send({ type: 'page_fetch_error', data: { url, error: message } });
+      }
+
       const runAgent = async (agentId: AgentId): Promise<AgentResult | null> => {
         send({ type: 'agent_start', agentId, data: { url } });
         try {
-          const result = await runSubAgent(agentId, { url, keyword });
+          const result = await runSubAgent(agentId, { url, keyword, pageContent, competitorUrls });
           send({ type: 'agent_complete', agentId, data: { result, durationMs: Date.now() - analysisStart } });
           return result;
         } catch (err) {
@@ -80,29 +121,40 @@ export async function POST(req: NextRequest) {
         }
       };
 
-      try {
-        const phase1Results = await Promise.all(PHASE_1.map(runAgent));
-        const phase2Results = await Promise.all(PHASE_2.map(runAgent));
-        const phase3Results = await Promise.all(PHASE_3.map(runAgent));
-        const phase4Results = await Promise.all(PHASE_4.map(runAgent));
+      // All agents within a phase run concurrently.
+      const runPhase = (agentIds: AgentId[]) =>
+        Promise.all(agentIds.map(runAgent));
 
-        const seoResults = [...phase1Results, ...phase2Results, ...phase3Results].filter(
+      try {
+        const phase1Results = await runPhase(PHASE_1);
+        const phase2Results = await runPhase(PHASE_2);
+        const phase3Results = await runPhase(PHASE_3);
+
+        const seoResults = [...phase1Results, ...phase2Results].filter(
           (r): r is AgentResult => r !== null
         );
-        const blogResult = phase4Results[0] ?? null;
+        const blogResult = phase3Results[0] ?? null;
 
-        const report = await runSynthesis(seoResults, url, keyword, Date.now() - analysisStart);
-
-        if (blogResult) {
-          const blogArticle = blogResult.raw.blog_article as BlogArticleRaw | undefined;
-          if (blogArticle) report.blog_article = blogArticle;
-          report.agentResults = [...report.agentResults, blogResult];
+        // Try the LLM synthesis; if it fails, fall back to a deterministic
+        // report built from the agents that did succeed — never discard their work.
+        let core: SynthesisCore;
+        try {
+          core = await runSynthesis(seoResults, url, keyword);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          console.error('[analyze] synthesis failed, using fallback report:', message);
+          send({ type: 'synthesis_fallback', data: { message } });
+          core = buildFallbackSynthesis(seoResults);
         }
 
+        const report = assembleReport(core, seoResults, blogResult, url, keyword, Date.now() - analysisStart);
         send({ type: 'final_report', data: { report } });
       } catch (err) {
+        // Reaching here means something outside synthesis broke. Report it as an
+        // analysis-level error rather than blaming an individual agent.
         const message = err instanceof Error ? err.message : String(err);
-        send({ type: 'agent_error', agentId: 'technical-auditor', data: { message, retryable: false } });
+        console.error('[analyze] fatal error:', message);
+        send({ type: 'analysis_error', data: { message, retryable: false } });
       } finally {
         controller.close();
       }

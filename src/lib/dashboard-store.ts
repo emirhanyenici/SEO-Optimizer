@@ -5,6 +5,7 @@ export const ALL_AGENT_IDS: AgentId[] = [
   'technical-auditor', 'page-speed', 'meta-optimizer', 'ai-visibility', 'company-intelligence',
   'internal-link', 'semantic-content',
   'cannibalization', 'competitor-gap', 'feedback-analyzer',
+  'geo',
   'blog-writer',
 ];
 
@@ -27,6 +28,9 @@ export interface DashboardRun {
   error?: string;
   mode: 'full' | 'single';
   singleAgentId?: AgentId;
+  // True when the report was assembled client-side from the agents that
+  // finished, because the stream ended before a `final_report` arrived.
+  partial?: boolean;
 }
 
 export type DashboardAction =
@@ -35,6 +39,7 @@ export type DashboardAction =
   | { type: 'UPDATE_AGENT'; runId: string; agentId: AgentId; update: Partial<AgentState> }
   | { type: 'ADD_EVENT'; runId: string; event: SSEEvent }
   | { type: 'COMPLETE_RUN'; runId: string; report: FinalSEOReport; completedAt: number }
+  | { type: 'COMPLETE_RUN_PARTIAL'; runId: string; report: FinalSEOReport; completedAt: number }
   | { type: 'FAIL_RUN'; runId: string; error: string }
   | { type: 'STOP_RUN'; runId: string }
   | { type: 'DELETE_RUN'; runId: string }
@@ -84,6 +89,16 @@ export function dashboardReducer(state: DashboardState, action: DashboardAction)
         runs: state.runs.map((r) =>
           r.id !== action.runId ? r : {
             ...r, status: 'completed', report: action.report, completedAt: action.completedAt,
+          }
+        ),
+      };
+
+    case 'COMPLETE_RUN_PARTIAL':
+      return {
+        ...state,
+        runs: state.runs.map((r) =>
+          r.id !== action.runId || r.status !== 'running' ? r : {
+            ...r, status: 'completed', report: action.report, completedAt: action.completedAt, partial: true,
           }
         ),
       };

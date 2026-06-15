@@ -9,7 +9,7 @@ export const maxDuration = 60;
 const VALID_AGENT_IDS: AgentId[] = [
   'technical-auditor', 'page-speed', 'internal-link', 'meta-optimizer',
   'semantic-content', 'cannibalization', 'competitor-gap', 'ai-visibility',
-  'company-intelligence', 'feedback-analyzer',
+  'company-intelligence', 'feedback-analyzer', 'blog-writer', 'geo',
 ];
 
 export async function POST(
@@ -23,14 +23,19 @@ export async function POST(
     return new Response(JSON.stringify({ error: 'Invalid agent ID' }), { status: 400 });
   }
 
-  let body: { url?: string; keyword?: string; instructions?: string };
+  let body: {
+    url?: string;
+    keyword?: string;
+    instructions?: string;
+    competitorUrls?: string[];
+  };
   try {
     body = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400 });
   }
 
-  const { url, keyword } = body;
+  const { url, keyword, instructions, competitorUrls } = body;
   if (!url) {
     return new Response(JSON.stringify({ error: 'url is required' }), { status: 400 });
   }
@@ -46,7 +51,7 @@ export async function POST(
       encode({ type: 'agent_start', agentId, timestamp: now(), data: { url } });
 
       try {
-        const result = await runSubAgent(agentId, { url, keyword });
+        const result = await runSubAgent(agentId, { url, keyword, instructions, competitorUrls });
         encode({
           type: 'agent_complete',
           agentId,

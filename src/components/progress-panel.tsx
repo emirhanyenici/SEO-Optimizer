@@ -15,6 +15,7 @@ const AGENT_ORDER: AgentId[] = [
   'cannibalization',
   'competitor-gap',
   'feedback-analyzer',
+  'geo',
   'blog-writer',
 ];
 

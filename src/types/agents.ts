@@ -9,7 +9,8 @@ export type AgentId =
   | 'ai-visibility'
   | 'company-intelligence'
   | 'feedback-analyzer'
-  | 'blog-writer';
+  | 'blog-writer'
+  | 'geo';
 
 export type AgentStatus = 'pending' | 'running' | 'complete' | 'error';
 
@@ -66,4 +67,5 @@ export const AGENT_LABELS: Record<AgentId, string> = {
   'company-intelligence': 'Company Intelligence',
   'feedback-analyzer': 'Feedback Analyzer',
   'blog-writer': 'Blog Writer',
+  'geo': 'GEO',
 };

@@ -6,6 +6,7 @@ import type { DashboardRun } from '@/lib/dashboard-context';
 import { useDashboard } from '@/lib/dashboard-context';
 import { PriorityActions } from '@/components/priority-actions';
 import { ResultsTabs } from '@/components/results-tabs';
+import { PdfDownloadButton } from '@/components/pdf/pdf-download-button';
 
 interface Props {
   run: DashboardRun;
@@ -48,6 +49,14 @@ export function RunDetailModal({ run, onClose }: Props) {
               <a href={run.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-300 flex-shrink-0">
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
+              {run.partial && (
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded font-medium bg-amber-500/15 text-amber-300 flex-shrink-0"
+                  title="Bazı ajanlar tamamlanmadı — rapor tamamlanan ajanlardan oluşturuldu"
+                >
+                  Kısmi rapor
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
               {run.keyword && <span>"{run.keyword}"</span>}
@@ -58,6 +67,10 @@ export function RunDetailModal({ run, onClose }: Props) {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            <PdfDownloadButton
+              report={report}
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-white/[0.08] hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            />
             <button
               onClick={handleRerun}
               className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-white/[0.08] hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors"
@@ -97,6 +110,12 @@ export function RunDetailModal({ run, onClose }: Props) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5">
+          {run.partial && (
+            <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-300">
+              Bu kısmi bir rapordur: analiz tamamlanmadan (akış kesildi) bitti. Aşağıdaki sonuçlar
+              yalnızca başarıyla tamamlanan ajanlardan toplandı; sentez aşaması atlandı.
+            </div>
+          )}
           {tab === 'actions' ? (
             <PriorityActions
               actions={report.priorityActions}
