@@ -9,9 +9,13 @@ export const ALL_AGENT_IDS: AgentId[] = [
   'blog-writer',
 ];
 
-export function makeInitialAgentStates(): Record<AgentId, AgentState> {
+// Build the per-agent state map. When `selected` is given, only those agents
+// get a state — so the live UI (which iterates the map) never shows deselected
+// agents stuck on "pending".
+export function makeInitialAgentStates(selected?: AgentId[]): Record<AgentId, AgentState> {
+  const ids = selected && selected.length ? selected : ALL_AGENT_IDS;
   return Object.fromEntries(
-    ALL_AGENT_IDS.map((id) => [id, { id, status: 'pending' as const }])
+    ids.map((id) => [id, { id, status: 'pending' as const }])
   ) as Record<AgentId, AgentState>;
 }
 
@@ -28,6 +32,10 @@ export interface DashboardRun {
   error?: string;
   mode: 'full' | 'single';
   singleAgentId?: AgentId;
+  // The agents this run was launched with (analysis agents + blog-writer when
+  // opted in). Drives which agent dots/cards the live UI shows. Absent on older
+  // persisted runs → callers fall back to ALL_AGENT_IDS.
+  selectedAgents?: AgentId[];
   // True when the report was assembled client-side from the agents that
   // finished, because the stream ended before a `final_report` arrived.
   partial?: boolean;

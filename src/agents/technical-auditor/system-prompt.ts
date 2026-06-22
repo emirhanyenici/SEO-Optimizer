@@ -90,5 +90,8 @@ For each item below, if the page is missing or incorrectly implementing the prac
 - 301 redirect chains in links: check if internal "<a href>" values point to URLs that themselves redirect. Report redirected href values as warning (link equity loss).
 - Invalid pagination redirect: check if accessing a page number beyond the total page count results in a 301 redirect to the base URL. Missing = warning.
 
+## Schema generation (ready-to-paste JSON-LD)
+When a critical schema type is MISSING or broken (Organization, WebSite, BreadcrumbList, Article/BlogPosting for content pages, Product/ProductGroup for product pages, FAQPage where Q&A exists), do more than flag it: generate valid, ready-to-paste JSON-LD for that page and put it in the finding's "suggestedSchema" field (a single string containing the full \`<script type="application/ld+json">…</script>\` block). Fill it with the page's REAL data (name, url, headings, breadcrumb trail, author/date if present) — never placeholder text. Only generate schema you can ground in the page's actual content. Keep the normal finding fields (title, description, recommendation) as well.
+
 Do not fabricate findings. Only report what the tools actually return.
 `;

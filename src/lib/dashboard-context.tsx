@@ -11,14 +11,19 @@ import {
   makeInitialAgentStates,
   saveToStorage,
   loadFromStorage,
+  ALL_AGENT_IDS,
 } from './dashboard-store';
+
+// All analysis agents (everything except the opt-in blog-writer) — the default
+// when a run is started without an explicit agent selection.
+const ALL_ANALYSIS_AGENTS: AgentId[] = ALL_AGENT_IDS.filter((id) => id !== 'blog-writer');
 
 export type { DashboardRun };
 
 interface DashboardContextValue {
   runs: DashboardRun[];
   allEvents: Array<SSEEvent & { runId: string; runUrl: string }>;
-  startRun: (url: string, keyword?: string) => void;
+  startRun: (url: string, keyword?: string, opts?: { includeBlog?: boolean; agents?: AgentId[] }) => void;
   startAgentRun: (
     agentId: AgentId,
     url: string,
@@ -139,20 +144,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
 
   const startRun = useCallback(
-    (url: string, keyword?: string) => {
+    (url: string, keyword?: string, opts?: { includeBlog?: boolean; agents?: AgentId[] }) => {
       const id = crypto.randomUUID();
+      // Omitted → all (backwards compatible); an explicit list (even empty) is
+      // honored as-is so "blog only" works.
+      const analysisAgents = opts?.agents ?? ALL_ANALYSIS_AGENTS;
+      // The full set of agents this run will show (analysis + blog when opted in).
+      const visibleSet: AgentId[] = [
+        ...analysisAgents,
+        ...(opts?.includeBlog ? (['blog-writer'] as AgentId[]) : []),
+      ];
       const run: DashboardRun = {
         id, url, keyword,
         startedAt: Date.now(),
         status: 'running',
-        agentStates: makeInitialAgentStates(),
+        agentStates: makeInitialAgentStates(visibleSet),
+        selectedAgents: visibleSet,
         events: [],
         mode: 'full',
       };
       dispatch({ type: 'START_RUN', run });
       const ctrl = new AbortController();
       abortRefs.current.set(id, ctrl);
-      consumeSSE(id, '/api/analyze', { url, keyword }, ctrl);
+      consumeSSE(id, '/api/analyze', { url, keyword, includeBlog: opts?.includeBlog, agents: analysisAgents }, ctrl);
     },
     [consumeSSE]
   );

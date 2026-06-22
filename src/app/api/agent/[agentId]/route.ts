@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import type { AgentId } from '@/types/agents';
 import { runSubAgent } from '@/lib/run-sub-agent';
 import { encodeSSE } from '@/lib/sse';
+import { assertSafeUrl } from '@/lib/url-safety';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -38,6 +39,16 @@ export async function POST(
   const { url, keyword, instructions, competitorUrls } = body;
   if (!url) {
     return new Response(JSON.stringify({ error: 'url is required' }), { status: 400 });
+  }
+
+  // SSRF guard: reject internal/private/metadata targets.
+  try {
+    await assertSafeUrl(url);
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: err instanceof Error ? err.message : 'Unsafe URL' }),
+      { status: 400 },
+    );
   }
 
   const stream = new ReadableStream({

@@ -7,6 +7,8 @@ import { useDashboard } from '@/lib/dashboard-context';
 import { PriorityActions } from '@/components/priority-actions';
 import { ResultsTabs } from '@/components/results-tabs';
 import { PdfDownloadButton } from '@/components/pdf/pdf-download-button';
+import { DriftPanel } from '@/components/dashboard/drift-panel';
+import { findPreviousRun } from '@/lib/compare-runs';
 
 interface Props {
   run: DashboardRun;
@@ -14,10 +16,11 @@ interface Props {
 }
 
 export function RunDetailModal({ run, onClose }: Props) {
-  const { startRun } = useDashboard();
-  const [tab, setTab] = useState<'actions' | 'findings'>('actions');
+  const { startRun, runs } = useDashboard();
+  const [tab, setTab] = useState<'actions' | 'findings' | 'drift'>('actions');
 
   const report = run.report;
+  const prevRun = findPreviousRun(runs, run);
   if (!report) return null;
 
   const duration = run.completedAt
@@ -30,7 +33,16 @@ export function RunDetailModal({ run, onClose }: Props) {
                      'text-red-400 border-red-400/30';
 
   const handleRerun = () => {
-    startRun(run.url, run.keyword);
+    // Preserve the original agent selection (blog-writer is tracked separately).
+    const selected = run.selectedAgents;
+    if (selected) {
+      startRun(run.url, run.keyword, {
+        agents: selected.filter((a) => a !== 'blog-writer'),
+        includeBlog: selected.includes('blog-writer'),
+      });
+    } else {
+      startRun(run.url, run.keyword);
+    }
     onClose();
   };
 
@@ -63,6 +75,14 @@ export function RunDetailModal({ run, onClose }: Props) {
               {duration && <span>{duration}s</span>}
               <span>{new Date(run.startedAt).toLocaleString('tr-TR')}</span>
               <span>{report.priorityActions.length} aksiyon</span>
+              {report.usageTotals && (
+                <span
+                  className="text-emerald-400/80"
+                  title={`Girdi ${report.usageTotals.inputTokens.toLocaleString('tr-TR')} · Çıktı ${report.usageTotals.outputTokens.toLocaleString('tr-TR')} · Cache okuma ${report.usageTotals.cacheReadTokens.toLocaleString('tr-TR')} token`}
+                >
+                  ~${report.usageTotals.estimatedCostUsd.toFixed(2)}
+                </span>
+              )}
             </div>
           </div>
 
@@ -106,6 +126,18 @@ export function RunDetailModal({ run, onClose }: Props) {
           >
             Bulgular ({report.agentResults.reduce((s, r) => s + r.findings.length, 0)})
           </button>
+          {prevRun && (
+            <button
+              onClick={() => setTab('drift')}
+              className={`text-xs font-medium px-3 py-1.5 rounded-md transition-colors ${
+                tab === 'drift'
+                  ? 'bg-white/[0.08] text-white'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              Karşılaştırma
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -116,14 +148,18 @@ export function RunDetailModal({ run, onClose }: Props) {
               yalnızca başarıyla tamamlanan ajanlardan toplandı; sentez aşaması atlandı.
             </div>
           )}
-          {tab === 'actions' ? (
+          {tab === 'actions' && (
             <PriorityActions
               actions={report.priorityActions}
               overallScore={report.overallScore}
               summary={report.summary}
             />
-          ) : (
-            <ResultsTabs agentResults={report.agentResults} />
+          )}
+          {tab === 'findings' && (
+            <ResultsTabs agentResults={report.agentResults} blogArticle={report.blog_article} baseUrl={report.url} />
+          )}
+          {tab === 'drift' && prevRun && (
+            <DriftPanel prev={prevRun} current={run} />
           )}
         </div>
       </div>

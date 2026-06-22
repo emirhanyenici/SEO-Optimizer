@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Search, Loader2 } from 'lucide-react';
+import { AGENT_LABELS } from '@/types/agents';
 import type { AgentId, AgentResult, AgentState, SSEEvent } from '@/types/agents';
 import type { FinalSEOReport } from '@/types/seo';
 import { ProgressPanel } from './progress-panel';
@@ -15,6 +16,9 @@ const AGENT_IDS: AgentId[] = [
   'company-intelligence', 'internal-link', 'semantic-content',
   'cannibalization', 'competitor-gap', 'feedback-analyzer', 'geo', 'blog-writer',
 ];
+
+// Selectable analysis agents (blog-writer has its own opt-in toggle).
+const ANALYSIS_AGENT_IDS: AgentId[] = AGENT_IDS.filter((id) => id !== 'blog-writer');
 
 // Trim, prepend https:// when no scheme, validate, cap at 5. Used for the
 // optional competitor list the GEO / blog-writer agents consume.
@@ -30,9 +34,9 @@ function parseCompetitorUrls(raw: string): string[] {
     .slice(0, 5);
 }
 
-function initialStates(): Record<AgentId, AgentState> {
+function initialStates(ids: AgentId[] = AGENT_IDS): Record<AgentId, AgentState> {
   return Object.fromEntries(
-    AGENT_IDS.map((id) => [id, { id, status: 'pending' as const }])
+    ids.map((id) => [id, { id, status: 'pending' as const }])
   ) as Record<AgentId, AgentState>;
 }
 
@@ -44,8 +48,18 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
   const [url, setUrl] = useState('');
   const [keyword, setKeyword] = useState('');
   const [competitorsText, setCompetitorsText] = useState('');
+  const [includeBlog, setIncludeBlog] = useState(false);
+  const [selectedAgents, setSelectedAgents] = useState<AgentId[]>(ANALYSIS_AGENT_IDS);
   const [isLoading, setIsLoading] = useState(false);
   const [agentStates, setAgentStates] = useState<Record<AgentId, AgentState>>(initialStates());
+
+  const toggleAgent = useCallback((id: AgentId) =>
+    setSelectedAgents((prev) =>
+      prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
+    ), []);
+  const allSelected = selectedAgents.length === ANALYSIS_AGENT_IDS.length;
+  // Agents this run will show: selected analysis agents + blog-writer when opted in.
+  const visibleAgents: AgentId[] = [...selectedAgents, ...(includeBlog ? (['blog-writer'] as AgentId[]) : [])];
   const [report, setReport] = useState<FinalSEOReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
@@ -60,11 +74,16 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
+    if (selectedAgents.length === 0 && !includeBlog) {
+      setError('En az bir ajan seçin');
+      return;
+    }
 
+    const visible: AgentId[] = [...selectedAgents, ...(includeBlog ? (['blog-writer'] as AgentId[]) : [])];
     setIsLoading(true);
     setError(null);
     setReport(null);
-    setAgentStates(initialStates());
+    setAgentStates(initialStates(visible));
     setStarted(true);
     onStarted?.();
 
@@ -77,6 +96,8 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
           url: url.trim(),
           keyword: keyword.trim() || undefined,
           competitorUrls: competitorUrls.length > 0 ? competitorUrls : undefined,
+          agents: selectedAgents,
+          includeBlog,
         }),
       });
 
@@ -132,7 +153,7 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, [url, keyword, competitorsText]);
+  }, [url, keyword, competitorsText, includeBlog, selectedAgents, onStarted]);
 
   const handleSSEEvent = useCallback((event: SSEEvent) => {
     switch (event.type) {
@@ -213,6 +234,58 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
             GEO ajanı bunları sizin domaininizle karşılaştırır. Boş bırakırsanız SERP&apos;ten otomatik bulunur.
           </p>
         </div>
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-sm font-medium text-gray-300">Çalışacak ajanlar</label>
+            <button
+              type="button"
+              onClick={() => setSelectedAgents(allSelected ? [] : ANALYSIS_AGENT_IDS)}
+              disabled={isLoading}
+              className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50"
+            >
+              {allSelected ? 'Hiçbiri' : 'Hepsi'}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+            {ANALYSIS_AGENT_IDS.map((id) => {
+              const checked = selectedAgents.includes(id);
+              return (
+                <label
+                  key={id}
+                  className={`flex items-center gap-2 cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs transition-colors ${
+                    checked
+                      ? 'border-blue-500/40 bg-blue-500/10 text-gray-200'
+                      : 'border-white/10 bg-white/[0.02] text-gray-500 hover:border-white/20'
+                  } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleAgent(id)}
+                    disabled={isLoading}
+                    className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 accent-blue-600"
+                  />
+                  <span className="truncate">{AGENT_LABELS[id]}</span>
+                </label>
+              );
+            })}
+          </div>
+          <p className="text-xs text-gray-600 mt-1">Yalnız seçili ajanlar çalışır — daha az ajan, daha düşük maliyet.</p>
+        </div>
+
+        <label className="flex items-start gap-2.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={includeBlog}
+            onChange={e => setIncludeBlog(e.target.checked)}
+            disabled={isLoading}
+            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 accent-blue-600"
+          />
+          <span className="text-sm text-gray-300">
+            Blog yazısı da üret
+            <span className="block text-xs text-gray-500">En pahalı adım — varsayılan kapalı. Açarsanız 2500+ kelimelik SEO makalesi üretilir ve analiz maliyetini artırır.</span>
+          </span>
+        </label>
         <button
           type="submit"
           disabled={isLoading || !url.trim()}
@@ -234,7 +307,10 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
       {started && (
         <div className="space-y-2">
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Agent Status</h2>
-          <ProgressPanel agentStates={agentStates} />
+          <ProgressPanel
+            agentStates={agentStates}
+            agentIds={visibleAgents}
+          />
         </div>
       )}
 
@@ -267,7 +343,7 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
             <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">
               Detailed Findings by Agent
             </h2>
-            <ResultsTabs agentResults={agentResults} blogArticle={report.blog_article} />
+            <ResultsTabs agentResults={agentResults} blogArticle={report.blog_article} baseUrl={report.url} />
           </div>
         </>
       )}

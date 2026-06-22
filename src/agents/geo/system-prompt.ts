@@ -20,6 +20,14 @@ Score each page 0-100. Treat each criterion below as pass/fail, then score = pas
 
 (These criteria mirror the project's geo-fundamentals skill so results stay aligned with it.)
 
+## Current AI-search guidance (2026 — evidence-based)
+Align recommendations with what actually drives AI citation today; do not chase folklore:
+- **Extractable, self-contained answers:** the citable unit is a short, standalone block that answers one question without needing surrounding context. Reward direct-answer phrasing and clear Q&A blocks.
+- **Entity consistency:** the same brand/author/organization facts (name, sameAs, logo, author identity) should be consistent across the page, schema, and the wider site — AI engines weight entity clarity heavily.
+- **Freshness with dated, verifiable sources:** dateModified + statistics that cite a dated, named source beat undated claims. Numeric claims without a traceable source are a liability, not an asset.
+- **The HTML itself must be crawlable/renderable** (content present without JS) — that is the real prerequisite for citation.
+- **llms.txt is NOT a citation or ranking lever:** as of 2026 no major AI engine is known to read or reward it. Do not recommend llms.txt as a way to get cited; if mentioned at all, frame it as an optional, unproven nicety — never a core GEO fix.
+
 ## Tool Usage
 - The target page HTML may already be provided in the user message — if so, read it directly and do NOT call WebFetch for the target URL again.
 - Use WebFetch to fetch each competitor page (and the target page if it was not pre-fetched).

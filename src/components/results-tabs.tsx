@@ -1,18 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AGENT_LABELS, type AgentId, type AgentResult } from '@/types/agents';
 import { SeverityBadge } from './severity-badge';
+import { sanitizeBlogHtml } from '@/lib/sanitize-blog-html';
 import type { BlogArticleRaw } from '@/types/seo';
 
 interface ResultsTabsProps {
   agentResults: AgentResult[];
   blogArticle?: BlogArticleRaw;
+  // The analyzed page URL — relative links in the blog preview are absolutized
+  // against this so clicking one never hijacks the dashboard navigation.
+  baseUrl?: string;
 }
 
-export function ResultsTabs({ agentResults, blogArticle }: ResultsTabsProps) {
+// Ready-to-paste JSON-LD block with its own copy button (used when a finding
+// carries a suggestedSchema).
+function SchemaBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div className="mt-2 rounded-md bg-gray-900 border border-gray-800 overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-800">
+        <span className="text-xs font-medium text-gray-300">Önerilen JSON-LD</span>
+        <button onClick={copy} className="text-xs text-gray-400 hover:text-white">
+          {copied ? 'Kopyalandı ✓' : 'Kopyala'}
+        </button>
+      </div>
+      <pre className="p-3 text-xs text-gray-200 overflow-x-auto whitespace-pre-wrap break-all">{code}</pre>
+    </div>
+  );
+}
+
+export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsProps) {
+  const [copied, setCopied] = useState(false);
+
+  // Sanitized copy for the on-screen preview only; the raw HTML is kept for the
+  // "copy HTML" action below so the user's CMS receives the original links.
+  const previewHtml = useMemo(
+    () => (blogArticle ? sanitizeBlogHtml(blogArticle.html, baseUrl ?? '') : ''),
+    [blogArticle, baseUrl],
+  );
 
   const seoResults = agentResults.filter(r => r.agentId !== 'blog-writer');
   const hasBlog = !!blogArticle;
@@ -87,6 +121,23 @@ export function ResultsTabs({ agentResults, blogArticle }: ResultsTabsProps) {
                           </ul>
                         </div>
                       )}
+                      {(finding.falsifiability || finding.leadingIndicator) && (
+                        <div className="mt-2 grid sm:grid-cols-2 gap-2">
+                          {finding.falsifiability && (
+                            <div className="rounded-md bg-amber-50 border border-amber-100 px-3 py-2">
+                              <p className="text-xs font-medium text-amber-800">Nasıl yanlışlanır</p>
+                              <p className="text-xs text-amber-700 mt-0.5">{finding.falsifiability}</p>
+                            </div>
+                          )}
+                          {finding.leadingIndicator && (
+                            <div className="rounded-md bg-emerald-50 border border-emerald-100 px-3 py-2">
+                              <p className="text-xs font-medium text-emerald-800">Öncü gösterge</p>
+                              <p className="text-xs text-emerald-700 mt-0.5">{finding.leadingIndicator}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {finding.suggestedSchema && <SchemaBlock code={finding.suggestedSchema} />}
                     </div>
                   </div>
                 </div>
@@ -151,7 +202,7 @@ export function ResultsTabs({ agentResults, blogArticle }: ResultsTabsProps) {
               </div>
               <div
                 className="p-6 prose prose-sm max-w-none text-gray-800"
-                dangerouslySetInnerHTML={{ __html: blogArticle.html }}
+                dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             </div>
           </div>

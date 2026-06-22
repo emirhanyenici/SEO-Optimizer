@@ -549,6 +549,16 @@ export function SEOReportDocument({ report }: SEOReportDocumentProps) {
                       ))}
                     </View>
                   )}
+                  {finding.falsifiability && (
+                    <Text style={styles.findingText}>
+                      How we&apos;d know it failed: {finding.falsifiability}
+                    </Text>
+                  )}
+                  {finding.leadingIndicator && (
+                    <Text style={styles.findingText}>
+                      Leading indicator: {finding.leadingIndicator}
+                    </Text>
+                  )}
                 </View>
               ))}
             </View>

@@ -1,9 +1,11 @@
 import { load } from 'cheerio';
 import type { FetchPageInput, FetchPageOutput } from '@/types/tools';
+import { assertSafeUrl } from '../url-safety';
 
 export async function fetchPage(input: FetchPageInput): Promise<FetchPageOutput> {
   const start = Date.now();
   try {
+    await assertSafeUrl(input.url);
     const response = await fetch(input.url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; SEOOptimizer/1.0; +https://seo-optimizer.dev)',

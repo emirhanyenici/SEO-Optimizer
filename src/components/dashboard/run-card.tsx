@@ -108,7 +108,7 @@ export function RunCard({ run, onViewDetails }: Props) {
       {/* Agent dots */}
       {run.mode === 'full' && (
         <div className="grid grid-cols-10 gap-1 mb-3">
-          {ALL_AGENT_IDS.map((id) => (
+          {(run.selectedAgents ?? ALL_AGENT_IDS).map((id) => (
             <div key={id} className="flex flex-col items-center gap-1" title={AGENT_LABELS[id]}>
               <AgentDot status={run.agentStates[id]?.status ?? 'pending'} />
             </div>

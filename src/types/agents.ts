@@ -24,12 +24,31 @@ export interface Finding {
   impact: 'high' | 'medium' | 'low';
   effort: 'high' | 'medium' | 'low';
   evidence?: string[];
+  // How we would know this recommendation failed — makes the finding testable
+  // rather than a blind assertion (claude-seo FLOW falsifiability principle).
+  falsifiability?: string;
+  // The early metric to watch to confirm the fix is working (e.g. "impressions
+  // for this query in GSC over 2-4 weeks").
+  leadingIndicator?: string;
+  // Ready-to-paste JSON-LD when the finding is about missing/incorrect schema.
+  suggestedSchema?: string;
+}
+
+// Per-agent (or analysis-wide) token spend + a Haiku-priced cost estimate,
+// surfaced for real-time cost visibility. See src/lib/usage.ts.
+export interface UsageTotals {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheCreationTokens: number;
+  estimatedCostUsd: number;
 }
 
 export interface AgentResult {
   agentId: AgentId;
   findings: Finding[];
   raw: Record<string, unknown>;
+  usage?: UsageTotals;
 }
 
 export interface AgentState {

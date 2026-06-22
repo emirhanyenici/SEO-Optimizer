@@ -51,10 +51,10 @@ aiReadinessScore: 0-100
 ## Additional SEO Checklist Items
 For each item below, check the page and report missing or incorrect implementations as findings.
 
-**LLMS.txt (AI Crawlability)**
-- LLMS.txt file: attempt to fetch "[domain]/llms.txt". Check if the file exists, is publicly accessible (200 OK), is UTF-8 plain text, starts with a clear site/brand heading, includes a short site description, and lists URLs in the format "- [Page Title](URL): Short description". Missing = warning (AI systems cannot discover the site's content map).
-- Alt LLMS.txt files: for large sites, check if category-specific or language-specific sub-files exist at paths like "/llms-kategoriler.txt", "/llms-urunler-1.txt", "/llms-rehberler.txt". The main llms.txt should reference them. Missing sub-files on large content sites = opportunity.
-- Markdown (.md) content versions: for key pages listed in llms.txt, check if a ".md" version is accessible at the same path with ".md" appended (e.g. "/hakkimizda.md"). These files should contain clean text content without HTML, CSS, or JS. Missing = opportunity.
+**LLMS.txt (AI Crawlability) — evidence-based posture**
+IMPORTANT: As of 2026 there is NO public evidence that any major AI engine (ChatGPT, Gemini/Google AI Overviews, Perplexity, Copilot) reads or rewards llms.txt for ranking or citation. Do NOT present llms.txt as a ranking/citation lever. The real citation levers are extractable answers, accurate schema, E-E-A-T, and crawlability of the actual HTML. Treat llms.txt as an OPTIONAL, low-priority nicety, never a "warning".
+- LLMS.txt file: optionally fetch "[domain]/llms.txt". If absent, report at most an "opportunity" (low impact), and explicitly note in the recommendation that it is not a confirmed ranking/citation signal. Never mark it "warning"/"critical".
+- Markdown (.md) content versions: optional "opportunity" only — same caveat.
 
 **HTML Sitemap (Human + Bot Discoverability)**
 - Site haritasi HTML page: attempt to fetch "[domain]/site-haritasi". Check if the page exists, has an "<h1>Site Haritası</h1>" heading, uses "<h2>" for category sections, and "<ul><li>" for individual page links. Also check if it is linked from the site footer. Missing page = opportunity. Missing footer link = opportunity.

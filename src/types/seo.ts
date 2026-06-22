@@ -1,9 +1,16 @@
-import type { AgentId, AgentResult, Finding } from './agents';
+import type { AgentId, AgentResult, Finding, UsageTotals } from './agents';
 
 export interface AnalysisRequest {
   url: string;
   keyword?: string;
   competitorUrls?: string[];
+  // Which analysis agents to run. Omitted or empty → all of them (backwards
+  // compatible). `blog-writer` is NOT part of this list — it stays gated behind
+  // `includeBlog` because it is the single most expensive step.
+  agents?: AgentId[];
+  // Opt-in: the blog-writer is the single most expensive agent (long article
+  // output + multiple competitor fetches), so it only runs when requested.
+  includeBlog?: boolean;
 }
 
 export interface PriorityAction {
@@ -35,6 +42,9 @@ export interface FinalSEOReport {
   overallScore: number;
   summary: string;
   blog_article?: BlogArticleRaw;
+  // Run-wide token spend + Haiku-priced cost estimate for this analysis.
+  // Absent on client-built partial reports (the client never sees usage data).
+  usageTotals?: UsageTotals;
   // True when the report was assembled from the agents that finished rather
   // than from the LLM synthesis step (stream cut off, or synthesis skipped).
   partial?: boolean;

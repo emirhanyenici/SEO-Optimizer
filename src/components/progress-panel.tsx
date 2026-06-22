@@ -21,12 +21,15 @@ const AGENT_ORDER: AgentId[] = [
 
 interface ProgressPanelProps {
   agentStates: Record<AgentId, AgentState>;
+  // Restrict which agents are shown (e.g. hide blog-writer when not requested).
+  agentIds?: AgentId[];
 }
 
-export function ProgressPanel({ agentStates }: ProgressPanelProps) {
+export function ProgressPanel({ agentStates, agentIds }: ProgressPanelProps) {
+  const order = agentIds ?? AGENT_ORDER;
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {AGENT_ORDER.map((id) => {
+      {order.map((id) => {
         const state = agentStates[id];
         return (
           <div

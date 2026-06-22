@@ -19,5 +19,8 @@ export function cleanHtml(html: string): string {
   $('link').filter((_, el) => $(el).attr('rel') !== 'canonical').remove();
 
   const cleaned = $.html().replace(/\s{2,}/g, ' ').trim();
-  return cleaned.slice(0, 15_000);
+  // ~10k chars ≈ ~2.5k tokens — enough for <head>, headings and link structure
+  // the page-parsing agents need, without re-billing a large blob across the
+  // fan-out (and on every multi-turn re-send).
+  return cleaned.slice(0, 10_000);
 }
