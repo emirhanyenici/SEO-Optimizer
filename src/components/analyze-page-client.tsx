@@ -30,7 +30,7 @@ export function AnalyzePageClient() {
             <span className="font-semibold text-white text-sm">SEO Optimizer</span>
           </div>
           <div className="ml-auto flex gap-2 text-xs text-gray-500">
-            <span className="border border-white/10 px-2 py-1 rounded-md">8 Agents</span>
+            <span className="border border-white/10 px-2 py-1 rounded-md">12 Agents</span>
             <span className="border border-white/10 px-2 py-1 rounded-md">Parallel</span>
           </div>
         </div>
@@ -49,13 +49,13 @@ export function AnalyzePageClient() {
           <div className="w-full max-w-2xl text-center mb-8">
             <div className="inline-flex items-center gap-2 text-xs text-blue-400 border border-blue-500/20 bg-blue-500/10 rounded-full px-3 py-1 mb-6">
               <Zap className="h-3 w-3" />
-              8 AI agents running in parallel
+              12 AI agents running in parallel
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3 tracking-tight">
               Analyze your website
             </h1>
             <p className="text-gray-400 text-base leading-relaxed">
-              Paste any URL. Eight specialized AI agents examine your site in parallel — technical issues, speed, content gaps, competitor intelligence — and deliver a prioritized action plan in under 60 seconds.
+              Paste any URL. Twelve specialized AI agents examine your site in parallel — technical issues, speed, content gaps, AI-search visibility, competitor intelligence — and deliver a prioritized action plan in under 60 seconds.
             </p>
           </div>
         )}

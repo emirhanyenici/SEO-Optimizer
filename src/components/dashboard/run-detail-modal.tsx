@@ -58,27 +58,27 @@ export function RunDetailModal({ run, onClose }: Props) {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="text-white font-semibold text-sm truncate">{run.url}</h2>
-              <a href={run.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-300 flex-shrink-0">
+              <a href={run.url} target="_blank" rel="noopener noreferrer" aria-label="Open analyzed URL in a new tab" className="text-gray-600 hover:text-gray-300 flex-shrink-0">
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
               {run.partial && (
                 <span
                   className="text-xs px-1.5 py-0.5 rounded font-medium bg-amber-500/15 text-amber-300 flex-shrink-0"
-                  title="Bazı ajanlar tamamlanmadı — rapor tamamlanan ajanlardan oluşturuldu"
+                  title="Some agents did not finish — the report was built from the completed agents"
                 >
-                  Kısmi rapor
+                  Partial report
                 </span>
               )}
             </div>
             <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
               {run.keyword && <span>"{run.keyword}"</span>}
               {duration && <span>{duration}s</span>}
-              <span>{new Date(run.startedAt).toLocaleString('tr-TR')}</span>
-              <span>{report.priorityActions.length} aksiyon</span>
+              <span>{new Date(run.startedAt).toLocaleString('en-US')}</span>
+              <span>{report.priorityActions.length} actions</span>
               {report.usageTotals && (
                 <span
                   className="text-emerald-400/80"
-                  title={`Girdi ${report.usageTotals.inputTokens.toLocaleString('tr-TR')} · Çıktı ${report.usageTotals.outputTokens.toLocaleString('tr-TR')} · Cache okuma ${report.usageTotals.cacheReadTokens.toLocaleString('tr-TR')} token`}
+                  title={`Input ${report.usageTotals.inputTokens.toLocaleString('en-US')} · Output ${report.usageTotals.outputTokens.toLocaleString('en-US')} · Cache read ${report.usageTotals.cacheReadTokens.toLocaleString('en-US')} tokens`}
                 >
                   ~${report.usageTotals.estimatedCostUsd.toFixed(2)}
                 </span>
@@ -96,9 +96,9 @@ export function RunDetailModal({ run, onClose }: Props) {
               className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white border border-white/[0.08] hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors"
             >
               <RefreshCw className="h-3 w-3" />
-              Yeniden Analiz
+              Re-analyze
             </button>
-            <button onClick={onClose} className="text-gray-500 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06]">
+            <button onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.06]">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -114,7 +114,7 @@ export function RunDetailModal({ run, onClose }: Props) {
                 : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            Öncelikli Aksiyonlar ({report.priorityActions.length})
+            Priority Actions ({report.priorityActions.length})
           </button>
           <button
             onClick={() => setTab('findings')}
@@ -124,7 +124,7 @@ export function RunDetailModal({ run, onClose }: Props) {
                 : 'text-gray-500 hover:text-gray-300'
             }`}
           >
-            Bulgular ({report.agentResults.reduce((s, r) => s + r.findings.length, 0)})
+            Findings ({report.agentResults.reduce((s, r) => s + r.findings.length, 0)})
           </button>
           {prevRun && (
             <button
@@ -135,7 +135,7 @@ export function RunDetailModal({ run, onClose }: Props) {
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              Karşılaştırma
+              Comparison
             </button>
           )}
         </div>
@@ -144,8 +144,9 @@ export function RunDetailModal({ run, onClose }: Props) {
         <div className="flex-1 overflow-y-auto p-5">
           {run.partial && (
             <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-300">
-              Bu kısmi bir rapordur: analiz tamamlanmadan (akış kesildi) bitti. Aşağıdaki sonuçlar
-              yalnızca başarıyla tamamlanan ajanlardan toplandı; sentez aşaması atlandı.
+              This is a partial report: the analysis ended before completing (the stream was
+              interrupted). The results below were collected only from the agents that finished
+              successfully; the synthesis step was skipped.
             </div>
           )}
           {tab === 'actions' && (

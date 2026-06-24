@@ -33,7 +33,7 @@ export function DashboardNav({ onNewRun }: Props) {
           href="/analyze"
           className="flex items-center gap-1.5 text-gray-400 hover:text-white hover:bg-white/[0.04] text-xs font-medium px-3 py-1.5 rounded-md transition-colors"
         >
-          Raporlar
+          Reports
         </Link>
       </nav>
 
@@ -41,20 +41,21 @@ export function DashboardNav({ onNewRun }: Props) {
         {running > 0 && (
           <div className="flex items-center gap-1.5 text-xs text-blue-400 border border-blue-400/20 bg-blue-400/5 px-2.5 py-1 rounded-md">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 pulse-dot" />
-            {running} aktif
+            {running} active
           </div>
         )}
 
         {total > 0 && (
           <span className="text-xs text-gray-600 border border-white/[0.06] px-2.5 py-1 rounded-md">
-            {total} analiz
+            {total} analyses
           </span>
         )}
 
         <button
           onClick={clearCompleted}
           className="text-gray-500 hover:text-gray-300 p-1.5 rounded-md hover:bg-white/[0.04] transition-colors"
-          title="Tamamlananları temizle"
+          title="Clear completed"
+          aria-label="Clear completed runs"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>
@@ -64,7 +65,7 @@ export function DashboardNav({ onNewRun }: Props) {
           className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition-colors"
         >
           <Plus className="h-3.5 w-3.5" />
-          Yeni Analiz
+          New Analysis
         </button>
       </div>
     </header>

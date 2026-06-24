@@ -7,6 +7,10 @@ import {
   Bot,
   Shield,
   Target,
+  Building2,
+  Wrench,
+  Sparkles,
+  PenLine,
 } from 'lucide-react';
 
 const agents = [
@@ -32,6 +36,13 @@ const agents = [
     bg: 'bg-blue-400/10',
   },
   {
+    icon: Building2,
+    title: 'Company Intelligence',
+    description: 'Infers your business model, target audience, and positioning to spot strategy gaps competitors exploit.',
+    color: 'text-teal-400',
+    bg: 'bg-teal-400/10',
+  },
+  {
     icon: Link2,
     title: 'Internal Link Analysis',
     description: 'Maps your link graph, identifies orphaned pages, over-linked pages, and anchor text diversity gaps.',
@@ -55,16 +66,39 @@ const agents = [
   {
     icon: BarChart3,
     title: 'Competitor Gap',
-    description: 'Scrapes live SERP data via Apify to find keyword and content opportunities your competitors rank for.',
+    description: 'Scrapes live SERP data to find keyword and content opportunities your competitors rank for.',
     color: 'text-cyan-400',
     bg: 'bg-cyan-400/10',
+  },
+  {
+    icon: Wrench,
+    title: 'Feedback Analyzer',
+    description: 'Runs root-cause analysis across every finding and surfaces the highest-ROI fixes to do first.',
+    color: 'text-amber-400',
+    bg: 'bg-amber-400/10',
   },
   {
     icon: Bot,
     title: 'AI Visibility',
     description: 'Checks if your content is structured to be cited by ChatGPT, Perplexity, and AI search engines.',
-    color: 'text-pink-400',
-    bg: 'bg-pink-400/10',
+    color: 'text-violet-400',
+    bg: 'bg-violet-400/10',
+    accent: 'violet' as const,
+  },
+  {
+    icon: Sparkles,
+    title: 'GEO',
+    description: 'Generative Engine Optimization — scores AI-citation readiness and benchmarks you against competitors.',
+    color: 'text-violet-400',
+    bg: 'bg-violet-400/10',
+    accent: 'violet' as const,
+  },
+  {
+    icon: PenLine,
+    title: 'Blog Writer',
+    description: 'Optional: generates a 2,500+ word, SEO-aligned article from competitor analysis (opt-in, off by default).',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-400/10',
   },
 ];
 
@@ -73,7 +107,7 @@ export function FeaturesSection() {
     <section id="features" className="py-24 px-4 sm:px-6 max-w-6xl mx-auto">
       <div className="text-center mb-16">
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">
-          8 agents. One report.
+          12 agents. One report.
         </h2>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
           Each specialized agent digs deep into a single domain, then the orchestrator combines all findings into a single prioritized action plan.
@@ -86,7 +120,9 @@ export function FeaturesSection() {
           return (
             <div
               key={agent.title}
-              className="card-dark rounded-xl p-5 group hover:glow-blue transition-all duration-200"
+              className={`card-dark rounded-xl p-5 group transition-all duration-200 ${
+                agent.accent === 'violet' ? 'hover:glow-violet' : 'hover:glow-blue'
+              }`}
             >
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${agent.bg} mb-4`}>
                 <Icon className={`h-4.5 w-4.5 ${agent.color}`} strokeWidth={1.5} />

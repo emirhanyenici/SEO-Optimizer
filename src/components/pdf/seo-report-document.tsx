@@ -380,7 +380,7 @@ export function SEOReportDocument({ report }: SEOReportDocumentProps) {
         : 'critical'
   );
 
-  const formattedDate = new Date(report.analyzedAt).toLocaleString('tr-TR');
+  const formattedDate = new Date(report.analyzedAt).toLocaleString('en-US');
   const durationSec = Math.round(report.totalDurationMs / 1000);
 
   return (
@@ -412,8 +412,8 @@ export function SEOReportDocument({ report }: SEOReportDocumentProps) {
             <Text style={styles.metaText}>Total Duration: {durationSec}s</Text>
             {report.partial && (
               <Text style={styles.partialNote}>
-                Kısmi Rapor — bazı ajanlar tamamlanmadı; sonuçlar yalnızca tamamlanan ajanlardan
-                toplandı.
+                Partial report — some agents did not finish; results were collected only from the
+                completed agents.
               </Text>
             )}
           </View>

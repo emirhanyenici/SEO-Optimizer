@@ -7,16 +7,16 @@ import type { AgentId } from '@/types/agents';
 import { AGENT_LABELS } from '@/types/agents';
 
 const AGENT_DESCS: Partial<Record<AgentId, string>> = {
-  'technical-auditor': 'robots.txt, canonical URL, yönlendirmeler, site haritası ve şema işaretlemeleri',
-  'page-speed': 'Google PageSpeed API ile Core Web Vitals: LCP, CLS, INP, TTFB',
-  'meta-optimizer': 'Başlık CTR potansiyeli, meta açıklaması, H1 hizalaması, Open Graph',
-  'internal-link': 'Bağlantı grafiği, yetim sayfalar, çapa metin çeşitliliği',
-  'semantic-content': 'Topikal otorite, varlık kapsamı, arama niyeti eşleşmesi',
-  'cannibalization': 'Aynı anahtar kelime için rekabet eden sayfalar ve sıralama seyrelmesi',
-  'competitor-gap': 'Canlı SERP verileri ile rakip anahtar kelime fırsatları',
-  'ai-visibility': 'ChatGPT, Perplexity ve yapay zeka arama motoru alıntı hazırlığı',
-  'blog-writer': 'Rakip analizine dayalı, SEO uyumlu yeni blog içeriği üretir',
-  'geo': 'AI motorlarında alıntı hazırlığı + rakip URL karşılaştırması',
+  'technical-auditor': 'robots.txt, canonical URLs, redirects, sitemap, and schema markup',
+  'page-speed': 'Core Web Vitals via Google PageSpeed API: LCP, CLS, INP, TTFB',
+  'meta-optimizer': 'Title CTR potential, meta description, H1 alignment, Open Graph',
+  'internal-link': 'Link graph, orphan pages, anchor-text diversity',
+  'semantic-content': 'Topical authority, entity coverage, search-intent match',
+  'cannibalization': 'Pages competing for the same keyword and ranking dilution',
+  'competitor-gap': 'Competitor keyword opportunities from live SERP data',
+  'ai-visibility': 'ChatGPT, Perplexity, and AI search engine citation readiness',
+  'blog-writer': 'Generates new SEO-aligned blog content based on competitor analysis',
+  'geo': 'AI engine citation readiness + competitor URL comparison',
 };
 
 const AGENT_COLORS: Partial<Record<AgentId, string>> = {
@@ -80,10 +80,10 @@ export function AgentRunModal({ agentId, onClose }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedUrl = normalizeUrl(url);
-    if (!url.trim()) { setError('URL gerekli'); return; }
-    if (!normalizedUrl) { setError('Geçersiz URL'); return; }
+    if (!url.trim()) { setError('URL is required'); return; }
+    if (!normalizedUrl) { setError('Invalid URL'); return; }
 
-    if (isBlog && !keyword.trim()) { setError('Hedef anahtar kelime gerekli'); return; }
+    if (isBlog && !keyword.trim()) { setError('Target keyword is required'); return; }
 
     // Normalize + validate each non-empty competitor URL; drop empty slots.
     let competitorUrls: string[] | undefined;
@@ -92,7 +92,7 @@ export function AgentRunModal({ agentId, onClose }: Props) {
       const normalized: string[] = [];
       for (const c of filled) {
         const n = normalizeUrl(c);
-        if (!n) { setError(`Geçersiz rakip URL: ${c}`); return; }
+        if (!n) { setError(`Invalid competitor URL: ${c}`); return; }
         normalized.push(n);
       }
       competitorUrls = normalized.length > 0 ? normalized : undefined;
@@ -120,7 +120,7 @@ export function AgentRunModal({ agentId, onClose }: Props) {
             <h2 className="text-white font-semibold text-sm">{AGENT_LABELS[agentId]}</h2>
             <p className="text-xs text-gray-600">{AGENT_DESCS[agentId]}</p>
           </div>
-          <button onClick={onClose} className="ml-auto text-gray-500 hover:text-white p-1 rounded-md hover:bg-white/[0.06]">
+          <button onClick={onClose} aria-label="Close" className="ml-auto text-gray-500 hover:text-white p-1 rounded-md hover:bg-white/[0.06]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -128,7 +128,7 @@ export function AgentRunModal({ agentId, onClose }: Props) {
         {!submitted ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Analiz edilecek URL</label>
+              <label className="block text-xs text-gray-400 mb-1.5">URL to analyze</label>
               <div className="relative">
                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-600" />
                 <input
@@ -146,14 +146,14 @@ export function AgentRunModal({ agentId, onClose }: Props) {
             {showKeyword && (
               <div>
                 <label className="block text-xs text-gray-400 mb-1.5">
-                  Hedef anahtar kelime{' '}
-                  {!isBlog && <span className="text-gray-600">(isteğe bağlı)</span>}
+                  Target keyword{' '}
+                  {!isBlog && <span className="text-gray-600">(optional)</span>}
                 </label>
                 <input
                   type="text"
                   value={keyword}
                   onChange={(e) => { setKeyword(e.target.value); setError(''); }}
-                  placeholder="örn. en iyi seo araçları 2025"
+                  placeholder="e.g. best seo tools 2025"
                   className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
               </div>
@@ -162,7 +162,7 @@ export function AgentRunModal({ agentId, onClose }: Props) {
             {needsCompetitors && (
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5">
-                    Rakip URL&apos;leri <span className="text-gray-600">(en fazla 5, isteğe bağlı)</span>
+                    Competitor URLs <span className="text-gray-600">(up to 5, optional)</span>
                   </label>
                   <div className="space-y-2">
                     {competitors.map((c, i) => (
@@ -171,14 +171,14 @@ export function AgentRunModal({ agentId, onClose }: Props) {
                           type="text"
                           value={c}
                           onChange={(e) => updateCompetitor(i, e.target.value)}
-                          placeholder={`https://rakip-${i + 1}.com/sayfa`}
+                          placeholder={`https://competitor-${i + 1}.com/page`}
                           className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 transition-colors"
                         />
                         <button
                           type="button"
                           onClick={() => removeCompetitor(i)}
                           className="text-gray-600 hover:text-red-400 p-1.5 rounded-md hover:bg-white/[0.06] flex-shrink-0"
-                          aria-label="Rakip URL'sini kaldır"
+                          aria-label="Remove competitor URL"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -191,23 +191,23 @@ export function AgentRunModal({ agentId, onClose }: Props) {
                       onClick={addCompetitor}
                       className="mt-2 flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300"
                     >
-                      <Plus className="h-3.5 w-3.5" /> Rakip ekle
+                      <Plus className="h-3.5 w-3.5" /> Add competitor
                     </button>
                   )}
                   <p className="text-xs text-gray-600 mt-1.5">
-                    Boş bırakırsanız ajan SERP&apos;ten otomatik bulur.
+                    Leave empty and the agent finds competitors automatically from the SERP.
                   </p>
                 </div>
             )}
 
             <div>
               <label className="block text-xs text-gray-400 mb-1.5">
-                Özel talimatlar <span className="text-gray-600">(isteğe bağlı)</span>
+                Custom instructions <span className="text-gray-600">(optional)</span>
               </label>
               <textarea
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                placeholder={`Bu agent için özel bir odak noktası belirtin...\nörn. "Özellikle mobil performansa odaklan"`}
+                placeholder={`Give this agent a specific focus...\ne.g. "Focus especially on mobile performance"`}
                 rows={3}
                 className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 transition-colors resize-none"
               />
@@ -217,7 +217,7 @@ export function AgentRunModal({ agentId, onClose }: Props) {
               type="submit"
               className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
             >
-              Çalıştır
+              Run
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
@@ -233,10 +233,10 @@ export function AgentRunModal({ agentId, onClose }: Props) {
               {agentState?.status === 'complete' && <span>✓</span>}
               {agentState?.status === 'error' && <span>✗</span>}
               <span className="capitalize">
-                {agentState?.status === 'running' ? 'Analiz ediliyor...' :
-                 agentState?.status === 'complete' ? 'Tamamlandı' :
-                 agentState?.status === 'error' ? `Hata: ${agentState.error}` :
-                 'Başlatılıyor...'}
+                {agentState?.status === 'running' ? 'Analyzing...' :
+                 agentState?.status === 'complete' ? 'Completed' :
+                 agentState?.status === 'error' ? `Error: ${agentState.error}` :
+                 'Starting...'}
               </span>
             </div>
 
@@ -251,7 +251,7 @@ export function AgentRunModal({ agentId, onClose }: Props) {
                 onClick={onClose}
                 className="w-full border border-white/[0.08] hover:border-white/20 text-gray-300 hover:text-white text-sm py-2.5 rounded-lg transition-colors"
               >
-                Dashboard'a dön
+                Back to dashboard
               </button>
             )}
           </div>

@@ -35,16 +35,16 @@ export function NewRunModal({ onClose }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) { setError('URL gerekli'); return; }
+    if (!url.trim()) { setError('URL is required'); return; }
     let normalized = url.trim();
     if (!normalized.startsWith('http')) normalized = 'https://' + normalized;
     try {
       new URL(normalized);
     } catch {
-      setError('Geçersiz URL'); return;
+      setError('Invalid URL'); return;
     }
     if (selectedAgents.length === 0 && !includeBlog) {
-      setError('En az bir ajan seçin'); return;
+      setError('Select at least one agent'); return;
     }
     startRun(normalized, keyword.trim() || undefined, { includeBlog, agents: selectedAgents });
     onClose();
@@ -55,8 +55,8 @@ export function NewRunModal({ onClose }: Props) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-[#0e0e0e] border border-white/[0.1] rounded-2xl p-6 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-white font-semibold">Yeni Analiz Başlat</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white p-1 rounded-md hover:bg-white/[0.06]">
+          <h2 className="text-white font-semibold">Start New Analysis</h2>
+          <button onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white p-1 rounded-md hover:bg-white/[0.06]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -79,25 +79,25 @@ export function NewRunModal({ onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Hedef Anahtar Kelime <span className="text-gray-600">(isteğe bağlı)</span></label>
+            <label className="block text-xs text-gray-400 mb-1.5">Target Keyword <span className="text-gray-600">(optional)</span></label>
             <input
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="örn. seo analiz aracı"
+              placeholder="e.g. seo analysis tool"
               className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.05] transition-colors"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs text-gray-400">Çalışacak ajanlar</label>
+              <label className="block text-xs text-gray-400">Agents to run</label>
               <button
                 type="button"
                 onClick={() => setSelectedAgents(allSelected ? [] : ANALYSIS_AGENT_IDS)}
                 className="text-xs text-blue-400 hover:text-blue-300"
               >
-                {allSelected ? 'Hiçbiri' : 'Hepsi'}
+                {allSelected ? 'None' : 'All'}
               </button>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
@@ -123,7 +123,7 @@ export function NewRunModal({ onClose }: Props) {
                 );
               })}
             </div>
-            <p className="text-xs text-gray-600 mt-1.5">Yalnız seçili ajanlar çalışır — daha az ajan, daha düşük maliyet.</p>
+            <p className="text-xs text-gray-600 mt-1.5">Only the selected agents run — fewer agents, lower cost.</p>
           </div>
 
           <label className="flex items-start gap-2.5 cursor-pointer rounded-lg border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
@@ -134,14 +134,14 @@ export function NewRunModal({ onClose }: Props) {
               className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 accent-blue-600"
             />
             <span className="text-xs text-gray-300">
-              Blog yazısı da üret
-              <span className="block text-gray-600">En pahalı adım — varsayılan kapalı. Açarsanız 2500+ kelimelik makale üretilir ve maliyeti artırır.</span>
+              Also generate a blog post
+              <span className="block text-gray-600">The most expensive step — off by default. When enabled, it generates a 2,500+ word article and increases cost.</span>
             </span>
           </label>
 
           {recentUrls.length > 0 && (
             <div>
-              <p className="text-xs text-gray-600 mb-2">Son analizler</p>
+              <p className="text-xs text-gray-600 mb-2">Recent analyses</p>
               <div className="flex flex-wrap gap-1.5">
                 {recentUrls.map((u) => {
                   const host = (() => { try { return new URL(u).hostname; } catch { return u; } })();
@@ -165,7 +165,7 @@ export function NewRunModal({ onClose }: Props) {
               type="submit"
               className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
             >
-              Analiz Başlat ({selectedAgents.length + (includeBlog ? 1 : 0)} Agent)
+              Start Analysis ({selectedAgents.length + (includeBlog ? 1 : 0)} agents)
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

@@ -7,7 +7,7 @@ const steps = [
   {
     number: '02',
     title: 'Agents run in parallel',
-    description: 'The orchestrator dispatches all 8 agents simultaneously across three phases, cutting analysis time by 4×.',
+    description: 'The orchestrator dispatches up to 12 agents across phased waves, cutting analysis time dramatically. Pick which agents run to control cost.',
   },
   {
     number: '03',
@@ -62,11 +62,13 @@ export function HowItWorks() {
               { name: 'Technical Audit', phase: 1, status: 'complete', time: '8.2s' },
               { name: 'Page Speed', phase: 1, status: 'complete', time: '11.4s' },
               { name: 'Meta Optimizer', phase: 1, status: 'complete', time: '6.1s' },
+              { name: 'Company Intelligence', phase: 1, status: 'complete', time: '7.5s' },
               { name: 'AI Visibility', phase: 1, status: 'complete', time: '9.8s' },
               { name: 'Internal Links', phase: 2, status: 'running', time: '' },
               { name: 'Semantic Content', phase: 2, status: 'running', time: '' },
-              { name: 'Cannibalization', phase: 3, status: 'pending', time: '' },
               { name: 'Competitor Gap', phase: 3, status: 'pending', time: '' },
+              { name: 'Feedback Analyzer', phase: 3, status: 'pending', time: '' },
+              { name: 'GEO', phase: 3, status: 'pending', time: '' },
             ].map((agent) => (
               <div
                 key={agent.name}

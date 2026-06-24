@@ -14,7 +14,7 @@ export function CTA() {
               <span className="gradient-text-blue">Start free.</span>
             </h2>
             <p className="text-gray-400 text-lg mb-8 max-w-lg mx-auto">
-              No account. No credit card. Just paste a URL and let 8 AI agents go to work.
+              No account. No credit card. Just paste a URL and let 12 AI agents go to work.
             </p>
             <Link
               href="/analyze"

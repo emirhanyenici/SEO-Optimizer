@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 
 export const metadata: Metadata = {
   title: 'SEO Optimizer — Multi-Agent SEO Analysis',
-  description: 'AI-powered multi-agent SEO analysis tool. Analyze any URL with 8 specialized SEO agents.',
+  description: 'AI-powered multi-agent SEO analysis tool. Analyze any URL with 12 specialized SEO agents.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

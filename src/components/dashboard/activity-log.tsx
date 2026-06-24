@@ -5,11 +5,11 @@ import { useDashboard } from '@/lib/dashboard-context';
 import { AGENT_LABELS, type SSEEventType } from '@/types/agents';
 
 const EVENT_STYLES: Record<SSEEventType, { label: string; className: string }> = {
-  agent_start: { label: 'başladı', className: 'bg-blue-500/15 text-blue-300' },
-  agent_complete: { label: 'tamamlandı', className: 'bg-green-500/15 text-green-300' },
-  agent_error: { label: 'hata', className: 'bg-red-500/15 text-red-300' },
-  orchestrator_thinking: { label: 'düşünüyor', className: 'bg-gray-500/15 text-gray-400' },
-  final_report: { label: 'rapor hazır', className: 'bg-purple-500/15 text-purple-300' },
+  agent_start: { label: 'started', className: 'bg-blue-500/15 text-blue-300' },
+  agent_complete: { label: 'completed', className: 'bg-green-500/15 text-green-300' },
+  agent_error: { label: 'error', className: 'bg-red-500/15 text-red-300' },
+  orchestrator_thinking: { label: 'thinking', className: 'bg-gray-500/15 text-gray-400' },
+  final_report: { label: 'report ready', className: 'bg-purple-500/15 text-purple-300' },
 };
 
 function timeAgo(ts: number): string {
@@ -36,7 +36,7 @@ export function ActivityLog() {
   return (
     <aside className="flex-shrink-0 w-[260px] border-l border-white/[0.06] flex flex-col overflow-hidden">
       <div className="flex-shrink-0 px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Hareket</span>
+        <span className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Activity</span>
         <span className="text-xs text-gray-600 border border-white/[0.06] px-1.5 py-0.5 rounded">
           {allEvents.length}
         </span>
@@ -45,7 +45,7 @@ export function ActivityLog() {
       <div ref={containerRef} className="flex-1 overflow-y-auto py-2 space-y-px">
         {allEvents.length === 0 ? (
           <div className="px-4 py-8 text-center text-gray-600 text-xs">
-            Henüz aktivite yok
+            No activity yet
           </div>
         ) : (
           allEvents.map((event, i) => {

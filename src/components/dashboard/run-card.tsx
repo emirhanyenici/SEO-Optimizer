@@ -82,9 +82,9 @@ export function RunCard({ run, onViewDetails }: Props) {
             {run.partial && (
               <span
                 className="text-xs px-1.5 py-0.5 rounded font-medium bg-amber-500/15 text-amber-300"
-                title="Bazı ajanlar tamamlanmadı — rapor tamamlanan ajanlardan oluşturuldu"
+                title="Some agents did not finish — the report was built from the completed agents"
               >
-                Kısmi
+                Partial
               </span>
             )}
           </div>
@@ -99,7 +99,8 @@ export function RunCard({ run, onViewDetails }: Props) {
         <button
           onClick={() => isRunning ? stopRun(run.id) : deleteRun(run.id)}
           className="text-gray-600 hover:text-gray-300 flex-shrink-0 p-0.5 rounded hover:bg-white/[0.06] transition-colors opacity-0 group-hover:opacity-100"
-          title={isRunning ? 'Durdur' : 'Sil'}
+          title={isRunning ? 'Stop' : 'Delete'}
+          aria-label={isRunning ? 'Stop run' : 'Delete run'}
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -120,7 +121,7 @@ export function RunCard({ run, onViewDetails }: Props) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs text-gray-500">
           {isRunning ? (
-            <span className="text-blue-400">{duration}s çalışıyor</span>
+            <span className="text-blue-400">{duration}s running</span>
           ) : (
             <span>{duration}s</span>
           )}
@@ -142,7 +143,7 @@ export function RunCard({ run, onViewDetails }: Props) {
           onClick={() => onViewDetails(run)}
           className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full transition-all"
         >
-          Detaylar
+          Details
           <ChevronRight className="h-3 w-3" />
         </button>
       )}

@@ -21,12 +21,12 @@ export function DriftPanel({ prev, current }: Props) {
   return (
     <div className="space-y-3">
       <p className="text-xs text-gray-500">
-        {new Date(prev.startedAt).toLocaleString('tr-TR')} → {new Date(current.startedAt).toLocaleString('tr-TR')} arası değişimler
+        Changes between {new Date(prev.startedAt).toLocaleString('en-US')} → {new Date(current.startedAt).toLocaleString('en-US')}
       </p>
 
       {changes.length === 0 ? (
         <p className="text-sm text-gray-500 text-center py-6">
-          İki çalışma arasında izlenen SEO sinyallerinde değişiklik yok.
+          No changes in the tracked SEO signals between the two runs.
         </p>
       ) : (
         changes.map((c) => {
@@ -38,7 +38,7 @@ export function DriftPanel({ prev, current }: Props) {
                 <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
                 <span className="text-sm font-medium text-gray-200">{c.label}</span>
                 {c.severity === 'critical' && (
-                  <span className="text-[10px] uppercase tracking-wider text-red-300 bg-red-500/15 px-1.5 py-0.5 rounded">kritik</span>
+                  <span className="text-[10px] uppercase tracking-wider text-red-300 bg-red-500/15 px-1.5 py-0.5 rounded">critical</span>
                 )}
               </div>
               <div className="flex items-center gap-2 text-xs">

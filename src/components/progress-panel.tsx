@@ -34,12 +34,14 @@ export function ProgressPanel({ agentStates, agentIds }: ProgressPanelProps) {
         return (
           <div
             key={id}
+            role="status"
+            aria-label={`${AGENT_LABELS[id]}: ${state.status}`}
             className={cn(
               'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
-              state.status === 'running' && 'border-blue-300 bg-blue-50',
-              state.status === 'complete' && 'border-green-300 bg-green-50',
-              state.status === 'error' && 'border-red-300 bg-red-50',
-              state.status === 'pending' && 'border-gray-200 bg-gray-50'
+              state.status === 'running' && 'border-blue-400/30 bg-blue-500/10 text-blue-200',
+              state.status === 'complete' && 'border-green-400/30 bg-green-500/10 text-green-200',
+              state.status === 'error' && 'border-red-400/30 bg-red-500/10 text-red-200',
+              state.status === 'pending' && 'border-white/[0.08] bg-white/[0.02] text-gray-500'
             )}
           >
             <StatusIcon status={state.status} />
@@ -52,8 +54,8 @@ export function ProgressPanel({ agentStates, agentIds }: ProgressPanelProps) {
 }
 
 function StatusIcon({ status }: { status: AgentState['status'] }) {
-  if (status === 'running') return <Loader2 className="h-4 w-4 text-blue-500 animate-spin shrink-0" />;
-  if (status === 'complete') return <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />;
-  if (status === 'error') return <XCircle className="h-4 w-4 text-red-500 shrink-0" />;
-  return <Circle className="h-4 w-4 text-gray-300 shrink-0" />;
+  if (status === 'running') return <Loader2 className="h-4 w-4 text-blue-400 animate-spin shrink-0" />;
+  if (status === 'complete') return <CheckCircle className="h-4 w-4 text-green-400 shrink-0" />;
+  if (status === 'error') return <XCircle className="h-4 w-4 text-red-400 shrink-0" />;
+  return <Circle className="h-4 w-4 text-gray-600 shrink-0" />;
 }

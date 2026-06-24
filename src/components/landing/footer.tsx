@@ -43,9 +43,11 @@ export function Footer() {
                 'Technical Audit',
                 'Page Speed',
                 'Meta Optimizer',
-                'Internal Links',
-                'Semantic Content',
+                'Company Intelligence',
+                'AI Visibility',
                 'Competitor Gap',
+                'GEO',
+                'Blog Writer',
               ].map((item) => (
                 <li key={item}>
                   <span className="text-gray-600 text-sm">{item}</span>
@@ -58,12 +60,12 @@ export function Footer() {
             <h4 className="text-gray-400 text-xs font-medium uppercase tracking-widest mb-4">Tech</h4>
             <ul className="space-y-2.5">
               {[
-                'Claude Sonnet 4.6',
+                'Claude Haiku 4.5',
                 'Next.js 16',
                 'Google PageSpeed API',
-                'Apify SERP Scraper',
+                'Live SERP Data',
                 'Tailwind CSS v4',
-                'shadcn/ui',
+                'Base UI',
               ].map((item) => (
                 <li key={item}>
                   <span className="text-gray-600 text-sm">{item}</span>

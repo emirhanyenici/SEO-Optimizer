@@ -8,13 +8,14 @@ const terminalLines = [
   { type: 'agent', name: 'technical-auditor', text: 'Crawling robots.txt and sitemap...' },
   { type: 'agent', name: 'page-speed', text: 'Running Core Web Vitals analysis...' },
   { type: 'agent', name: 'meta-optimizer', text: 'Analyzing title tags and meta descriptions...' },
+  { type: 'agent', name: 'company-intelligence', text: 'Inferring business model and audience...' },
   { type: 'agent', name: 'ai-visibility', text: 'Checking AI citation readiness...' },
-  { type: 'result', text: 'Phase 1 complete — 4 agents finished in 12.3s' },
-  { type: 'agent', name: 'internal-link', text: 'Mapping internal link graph...' },
-  { type: 'agent', name: 'semantic-content', text: 'Analyzing topical authority signals...' },
+  { type: 'result', text: 'Phase 1 complete — 5 agents finished in 12.3s' },
+  { type: 'agent', name: 'competitor-gap', text: 'Pulling live SERP and competitor pages...' },
+  { type: 'agent', name: 'geo', text: 'Scoring generative-engine visibility...' },
   { type: 'result', text: 'Critical: 3 canonical mismatches detected' },
   { type: 'result', text: 'Warning: LCP 4.2s — above 2.5s threshold' },
-  { type: 'success', text: 'Report ready — 23 findings, score: 61/100' },
+  { type: 'success', text: 'Report ready — 31 findings across 12 agents, score: 61/100' },
 ];
 
 const colorMap: Record<string, string> = {
@@ -31,7 +32,7 @@ export function Hero() {
         <div>
           <div className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] rounded-full px-3 py-1 text-xs text-gray-400 mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 pulse-dot" />
-            8 AI agents running in parallel
+            12 AI agents running in parallel
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white leading-[1.1] mb-6">
@@ -42,7 +43,7 @@ export function Hero() {
           </h1>
 
           <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-lg">
-            Paste a URL. Eight specialized AI agents analyze your site in parallel — technical issues, content gaps, speed, competitor intelligence — and deliver a prioritized action plan in under 60 seconds.
+            Paste a URL. Twelve specialized AI agents analyze your site in parallel — technical issues, content gaps, speed, AI-search visibility, competitor intelligence — and deliver a prioritized action plan in under 60 seconds.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 mb-10">
@@ -97,7 +98,7 @@ export function Hero() {
                 </div>
               ))}
               <div className="flex gap-2 text-gray-500">
-                <span className="text-gray-600 select-none">12</span>
+                <span className="text-gray-600 select-none">{String(terminalLines.length + 1).padStart(2, '0')}</span>
                 <span>
                   <span className="typing-cursor">▋</span>
                 </span>

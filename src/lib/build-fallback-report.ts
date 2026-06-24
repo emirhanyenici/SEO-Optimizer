@@ -41,7 +41,7 @@ export function buildFallbackSynthesis(results: AgentResult[]): SynthesisCore {
     severity: f.severity,
     agentId: f.agentId,
     title: f.title,
-    impact: f.description || `${f.impact} etkili bulgu`,
+    impact: f.description || `${f.impact}-impact finding`,
     effort: f.effort,
     recommendation: f.recommendation,
   }));
@@ -54,9 +54,9 @@ export function buildFallbackSynthesis(results: AgentResult[]): SynthesisCore {
   const score = scoreFindings(all);
   const topCritical = ranked.filter(f => f.severity === 'critical').slice(0, 2).map(f => f.title);
   const summary =
-    `Otomatik özet (sentez aşaması atlandı): ${results.length} ajandan ${all.length} bulgu toplandı — ` +
-    `${counts.critical} kritik, ${counts.warning} uyarı, ${counts.opportunity} fırsat. Genel skor ${score}/100.` +
-    (topCritical.length ? ` Öne çıkan kritik konular: ${topCritical.join('; ')}.` : '');
+    `Automated summary (synthesis step skipped): collected ${all.length} findings from ${results.length} agents — ` +
+    `${counts.critical} critical, ${counts.warning} warnings, ${counts.opportunity} opportunities. Overall score ${score}/100.` +
+    (topCritical.length ? ` Top critical issues: ${topCritical.join('; ')}.` : '');
 
   return { priorityActions, overallScore: score, summary };
 }

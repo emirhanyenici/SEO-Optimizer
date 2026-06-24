@@ -29,9 +29,9 @@ export function PdfDownloadButton({ report, className }: Props) {
       try {
         const hostname = new URL(report.url).hostname.replace(/\./g, '-');
         const date = new Date(report.analyzedAt).toISOString().slice(0, 10);
-        a.download = `seo-rapor-${hostname}-${date}.pdf`;
+        a.download = `seo-report-${hostname}-${date}.pdf`;
       } catch {
-        a.download = `seo-rapor-${new Date().toISOString().slice(0, 10)}.pdf`;
+        a.download = `seo-report-${new Date().toISOString().slice(0, 10)}.pdf`;
       }
 
       a.href = url;
@@ -40,7 +40,7 @@ export function PdfDownloadButton({ report, className }: Props) {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('PDF oluşturulamadı', err);
+      console.error('Failed to generate PDF', err);
     } finally {
       setLoading(false);
     }
@@ -53,6 +53,7 @@ export function PdfDownloadButton({ report, className }: Props) {
     <button
       onClick={handleDownload}
       disabled={loading}
+      aria-label="Download PDF report"
       className={className || defaultClassName}
     >
       {loading ? (
@@ -60,7 +61,7 @@ export function PdfDownloadButton({ report, className }: Props) {
       ) : (
         <Download className="h-3 w-3" />
       )}
-      {loading ? 'Hazırlanıyor…' : 'Raporu İndir'}
+      {loading ? 'Preparing…' : 'Download Report'}
     </button>
   );
 }

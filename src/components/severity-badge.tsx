@@ -5,9 +5,9 @@ import { cn } from '@/lib/utils';
 type Severity = 'critical' | 'warning' | 'opportunity';
 
 const SEVERITY_STYLES: Record<Severity, string> = {
-  critical: 'bg-red-100 text-red-800 border-red-200',
-  warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  opportunity: 'bg-blue-100 text-blue-700 border-blue-200',
+  critical: 'bg-red-500/15 text-red-300 border-red-400/30',
+  warning: 'bg-amber-500/15 text-amber-300 border-amber-400/30',
+  opportunity: 'bg-blue-500/15 text-blue-300 border-blue-400/30',
 };
 
 const SEVERITY_LABELS: Record<Severity, string> = {

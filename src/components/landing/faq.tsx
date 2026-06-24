@@ -6,27 +6,31 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
   {
     q: 'How does the multi-agent architecture work?',
-    a: 'An orchestrator agent receives your URL and dispatches 8 specialized sub-agents in parallel across three phases. Each agent uses a tailored system prompt and a set of tools specific to its domain — for example, the Page Speed agent calls Google PageSpeed Insights, while the Competitor Gap agent queries live SERP data via Apify. The orchestrator synthesizes all findings into a single prioritized report.',
+    a: 'Your URL is dispatched to up to 12 specialized sub-agents that run in parallel across phased waves. Each agent uses a tailored system prompt and tools specific to its domain — for example, the Page Speed agent calls Google PageSpeed Insights, while the Competitor Gap agent queries live SERP data. A synthesis step then combines every finding into a single prioritized report.',
   },
   {
     q: 'How long does an analysis take?',
-    a: 'Most analyses complete in 30–90 seconds. The bottleneck is usually the Competitor Gap agent, which waits for live SERP data. Phase 1 agents (Technical Audit, Page Speed, Meta Optimizer, AI Visibility) typically finish in 8–15 seconds running in parallel.',
+    a: 'Most analyses complete in 30–90 seconds. The bottleneck is usually the Competitor Gap and GEO agents, which wait for live SERP data. Phase 1 agents (Technical Audit, Page Speed, Meta Optimizer, Company Intelligence, AI Visibility) typically finish in 8–15 seconds running in parallel.',
+  },
+  {
+    q: 'Can I control which agents run and the cost?',
+    a: 'Yes. Before each run you choose exactly which of the 12 agents execute — fewer agents means fewer tokens and lower cost. The Blog Writer (a 2,500+ word article) is the most expensive agent and is off by default; you opt in only when you want it.',
+  },
+  {
+    q: 'What is GEO (Generative Engine Optimization)?',
+    a: 'GEO measures how ready your content is to be cited by AI answer engines like ChatGPT, Perplexity, and Claude. The dedicated GEO agent scores extractable answers, entity consistency, and crawlable HTML, and benchmarks you against competitor URLs you provide or that it discovers from the SERP.',
   },
   {
     q: 'Does it work on JavaScript-heavy SPAs?',
     a: 'The current version fetches server-rendered HTML, which works for most server-side and static sites. Client-side rendered SPAs (Next.js SPA mode, React without SSR) may return limited content. Rendered analysis is on the roadmap.',
   },
   {
-    q: 'What are the API requirements?',
-    a: 'You need an Anthropic API key (for Claude agents). Google PageSpeed Insights works without a key but is rate-limited. The Competitor Gap agent requires an Apify API token for live SERP data — without it, that agent gracefully skips.',
-  },
-  {
     q: 'What AI model does it use?',
-    a: 'All agents run on claude-sonnet-4-6, Anthropic\'s most cost-effective high-performance model. Each full analysis costs roughly $0.05–0.15 in API tokens depending on page content length.',
+    a: 'All agents run on claude-haiku-4-5, chosen to keep per-crawl cost low while staying fast. The pipeline also applies prompt caching and shared-evidence prefetching so the same page and SERP data aren\'t re-fetched by every agent.',
   },
   {
     q: 'How is the SEO score calculated?',
-    a: 'The orchestrator assigns a 0–100 score based on the severity distribution of findings. Critical issues reduce the score significantly, warnings moderately, and opportunities represent potential gains. The score reflects technical and content health, not ranking position.',
+    a: 'The report assigns a 0–100 score based on the severity distribution of findings. Critical issues reduce the score significantly, warnings moderately, and opportunities represent potential gains. The score reflects technical and content health, not ranking position.',
   },
 ];
 

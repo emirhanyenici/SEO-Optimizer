@@ -26,7 +26,7 @@ function rawFor(run: DashboardRun, agentId: AgentId): Raw {
 function show(v: unknown): string {
   if (v === undefined || v === null) return '—';
   if (Array.isArray(v)) return v.length ? v.join(', ') : '—';
-  if (typeof v === 'boolean') return v ? 'evet' : 'hayır';
+  if (typeof v === 'boolean') return v ? 'yes' : 'no';
   if (typeof v === 'object') return JSON.stringify(v);
   return String(v);
 }
@@ -60,7 +60,7 @@ export function compareRuns(prev: DashboardRun, current: DashboardRun): DriftCha
   const cScore = current.report?.overallScore;
   if (typeof pScore === 'number' && typeof cScore === 'number' && pScore !== cScore) {
     add({
-      field: 'overallScore', label: 'SEO Skoru',
+      field: 'overallScore', label: 'SEO Score',
       before: String(pScore), after: String(cScore),
       severity: 'info',
       direction: cScore > pScore ? 'improvement' : 'regression',
@@ -71,15 +71,15 @@ export function compareRuns(prev: DashboardRun, current: DashboardRun): DriftCha
   const pTitle = (pMeta.title as Raw)?.text;
   const cTitle = (cMeta.title as Raw)?.text;
   if (!eq(pTitle, cTitle) && (pTitle !== undefined || cTitle !== undefined)) {
-    add({ field: 'title', label: 'Başlık (title)', before: show(pTitle), after: show(cTitle), severity: 'warning', direction: 'neutral' });
+    add({ field: 'title', label: 'Title', before: show(pTitle), after: show(cTitle), severity: 'warning', direction: 'neutral' });
   }
   const pDesc = (pMeta.metaDescription as Raw)?.text;
   const cDesc = (cMeta.metaDescription as Raw)?.text;
   if (!eq(pDesc, cDesc) && (pDesc !== undefined || cDesc !== undefined)) {
-    add({ field: 'metaDescription', label: 'Meta açıklama', before: show(pDesc), after: show(cDesc), severity: 'warning', direction: 'neutral' });
+    add({ field: 'metaDescription', label: 'Meta description', before: show(pDesc), after: show(cDesc), severity: 'warning', direction: 'neutral' });
   }
   if (!eq(pMeta.h1Count, cMeta.h1Count) && (pMeta.h1Count !== undefined || cMeta.h1Count !== undefined)) {
-    add({ field: 'h1Count', label: 'H1 sayısı', before: show(pMeta.h1Count), after: show(cMeta.h1Count), severity: 'warning', direction: 'neutral' });
+    add({ field: 'h1Count', label: 'H1 count', before: show(pMeta.h1Count), after: show(cMeta.h1Count), severity: 'warning', direction: 'neutral' });
   }
   for (const [key, label] of [['ogPresent', 'Open Graph'], ['twitterCardPresent', 'Twitter Card']] as const) {
     if (!eq(pMeta[key], cMeta[key]) && (pMeta[key] !== undefined || cMeta[key] !== undefined)) {
@@ -101,7 +101,7 @@ export function compareRuns(prev: DashboardRun, current: DashboardRun): DriftCha
   // status code
   if (!eq(pTech.statusCode, cTech.statusCode) && (pTech.statusCode !== undefined || cTech.statusCode !== undefined)) {
     const cs = Number(cTech.statusCode);
-    add({ field: 'statusCode', label: 'HTTP durum', before: show(pTech.statusCode), after: show(cTech.statusCode), severity: cs >= 400 ? 'critical' : 'info', direction: cs >= 400 ? 'regression' : 'neutral' });
+    add({ field: 'statusCode', label: 'HTTP status', before: show(pTech.statusCode), after: show(cTech.statusCode), severity: cs >= 400 ? 'critical' : 'info', direction: cs >= 400 ? 'regression' : 'neutral' });
   }
   // sitemap
   if (!eq(pTech.sitemapFound, cTech.sitemapFound) && (pTech.sitemapFound !== undefined || cTech.sitemapFound !== undefined)) {
@@ -112,7 +112,7 @@ export function compareRuns(prev: DashboardRun, current: DashboardRun): DriftCha
   const cSchema = Array.isArray(cTech.schemaTypes) ? [...(cTech.schemaTypes as string[])].sort() : undefined;
   if (!eq(pSchema, cSchema) && (pSchema !== undefined || cSchema !== undefined)) {
     const lost = (pSchema ?? []).filter((t) => !(cSchema ?? []).includes(t)).length > 0;
-    add({ field: 'schemaTypes', label: 'Schema tipleri', before: show(pSchema), after: show(cSchema), severity: lost ? 'warning' : 'info', direction: lost ? 'regression' : 'improvement' });
+    add({ field: 'schemaTypes', label: 'Schema types', before: show(pSchema), after: show(cSchema), severity: lost ? 'warning' : 'info', direction: lost ? 'regression' : 'improvement' });
   }
 
   // --- Finding counts ---
@@ -122,7 +122,7 @@ export function compareRuns(prev: DashboardRun, current: DashboardRun): DriftCha
     if (p !== c) {
       add({
         field: `findings_${sev}`,
-        label: sev === 'critical' ? 'Kritik bulgu sayısı' : 'Uyarı bulgu sayısı',
+        label: sev === 'critical' ? 'Critical findings count' : 'Warning findings count',
         before: String(p), after: String(c),
         severity: sev === 'critical' ? 'critical' : 'info',
         direction: c > p ? 'regression' : 'improvement',

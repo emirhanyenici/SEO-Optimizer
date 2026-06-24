@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AGENT_LABELS, type AgentId, type AgentResult } from '@/types/agents';
 import { SeverityBadge } from './severity-badge';
@@ -28,9 +29,9 @@ function SchemaBlock({ code }: { code: string }) {
   return (
     <div className="mt-2 rounded-md bg-gray-900 border border-gray-800 overflow-hidden">
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-800">
-        <span className="text-xs font-medium text-gray-300">Önerilen JSON-LD</span>
-        <button onClick={copy} className="text-xs text-gray-400 hover:text-white">
-          {copied ? 'Kopyalandı ✓' : 'Kopyala'}
+        <span className="text-xs font-medium text-gray-300">Suggested JSON-LD</span>
+        <button onClick={copy} aria-label="Copy JSON-LD" className="text-xs text-gray-400 hover:text-white">
+          {copied ? 'Copied ✓' : 'Copy'}
         </button>
       </div>
       <pre className="p-3 text-xs text-gray-200 overflow-x-auto whitespace-pre-wrap break-all">{code}</pre>
@@ -81,7 +82,7 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
         })}
         {hasBlog && (
           <TabsTrigger value="blog-article" className="text-xs">
-            Blog Yazısı
+            Blog Post
             <span className="ml-1.5 bg-green-600 text-white text-xs rounded-full px-1.5 py-0.5">
               {blogArticle.word_count.toLocaleString()}w
             </span>
@@ -93,28 +94,32 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
         <TabsContent key={result.agentId} value={result.agentId}>
           <div className="space-y-3">
             {result.findings.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-6">No issues found for this agent.</p>
+              <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+                <CheckCircle2 className="h-6 w-6 text-green-400" />
+                <p className="text-sm font-medium text-gray-200">No issues found 🎉</p>
+                <p className="text-xs text-gray-500">This agent didn&apos;t flag anything for review.</p>
+              </div>
             ) : (
               result.findings.map((finding) => (
-                <div key={finding.id} className="rounded-lg border bg-white p-4 shadow-sm">
+                <div key={finding.id} className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-2">
                         <SeverityBadge severity={finding.severity} />
-                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                        <span className="text-xs text-gray-400 bg-white/[0.06] px-2 py-0.5 rounded">
                           {finding.category}
                         </span>
                       </div>
-                      <h3 className="font-semibold text-sm text-gray-900">{finding.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{finding.description}</p>
-                      <div className="mt-2 rounded-md bg-blue-50 border border-blue-100 px-3 py-2">
-                        <p className="text-xs font-medium text-blue-800">Recommendation</p>
-                        <p className="text-xs text-blue-700 mt-0.5">{finding.recommendation}</p>
+                      <h3 className="font-semibold text-sm text-gray-100">{finding.title}</h3>
+                      <p className="text-sm text-gray-400 mt-1">{finding.description}</p>
+                      <div className="mt-2 rounded-md bg-blue-500/10 border border-blue-500/20 px-3 py-2">
+                        <p className="text-xs font-medium text-blue-300">Recommendation</p>
+                        <p className="text-xs text-blue-200 mt-0.5">{finding.recommendation}</p>
                       </div>
                       {finding.evidence && finding.evidence.length > 0 && (
-                        <div className="mt-2 rounded-md bg-gray-50 border border-gray-100 px-3 py-2">
-                          <p className="text-xs font-medium text-gray-700 mb-1">Evidence</p>
-                          <ul className="text-xs text-gray-600 space-y-0.5">
+                        <div className="mt-2 rounded-md bg-white/[0.02] border border-white/[0.06] px-3 py-2">
+                          <p className="text-xs font-medium text-gray-300 mb-1">Evidence</p>
+                          <ul className="text-xs text-gray-400 space-y-0.5">
                             {finding.evidence.map((e, i) => (
                               <li key={i} className="font-mono">{e}</li>
                             ))}
@@ -124,15 +129,15 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
                       {(finding.falsifiability || finding.leadingIndicator) && (
                         <div className="mt-2 grid sm:grid-cols-2 gap-2">
                           {finding.falsifiability && (
-                            <div className="rounded-md bg-amber-50 border border-amber-100 px-3 py-2">
-                              <p className="text-xs font-medium text-amber-800">Nasıl yanlışlanır</p>
-                              <p className="text-xs text-amber-700 mt-0.5">{finding.falsifiability}</p>
+                            <div className="rounded-md bg-amber-500/10 border border-amber-500/20 px-3 py-2">
+                              <p className="text-xs font-medium text-amber-300">How to falsify</p>
+                              <p className="text-xs text-amber-200 mt-0.5">{finding.falsifiability}</p>
                             </div>
                           )}
                           {finding.leadingIndicator && (
-                            <div className="rounded-md bg-emerald-50 border border-emerald-100 px-3 py-2">
-                              <p className="text-xs font-medium text-emerald-800">Öncü gösterge</p>
-                              <p className="text-xs text-emerald-700 mt-0.5">{finding.leadingIndicator}</p>
+                            <div className="rounded-md bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+                              <p className="text-xs font-medium text-emerald-300">Leading indicator</p>
+                              <p className="text-xs text-emerald-200 mt-0.5">{finding.leadingIndicator}</p>
                             </div>
                           )}
                         </div>
@@ -151,42 +156,43 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
         <TabsContent value="blog-article">
           <div className="space-y-4">
             {/* Header row */}
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base text-gray-900 mb-1">{blogArticle.title}</h3>
+                  <h3 className="font-semibold text-base text-gray-100 mb-1">{blogArticle.title}</h3>
                   <div className="flex items-center gap-3 flex-wrap text-xs text-gray-500">
-                    <span className="bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
-                      {blogArticle.word_count.toLocaleString()} kelime
+                    <span className="bg-green-500/15 text-green-300 border border-green-400/30 px-2 py-0.5 rounded-full font-medium">
+                      {blogArticle.word_count.toLocaleString()} words
                     </span>
-                    <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 rounded-full uppercase tracking-wider text-gray-400">
                       {blogArticle.language}
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={copyHtml}
-                  className="flex-shrink-0 text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                  aria-label="Copy blog HTML"
+                  className="flex-shrink-0 text-xs bg-white/[0.06] border border-white/[0.08] text-gray-200 px-3 py-1.5 rounded-lg hover:bg-white/[0.1] transition-colors font-medium"
                 >
-                  {copied ? 'Kopyalandı ✓' : 'HTML Kopyala'}
+                  {copied ? 'Copied ✓' : 'Copy HTML'}
                 </button>
               </div>
 
               {/* Meta description */}
-              <div className="mt-3 rounded-md bg-blue-50 border border-blue-100 px-3 py-2">
-                <p className="text-xs font-medium text-blue-800 mb-0.5">Meta Description</p>
-                <p className="text-xs text-blue-700">{blogArticle.meta_description}</p>
-                <p className="text-[10px] text-blue-500 mt-1">{blogArticle.meta_description.length} karakter</p>
+              <div className="mt-3 rounded-md bg-blue-500/10 border border-blue-500/20 px-3 py-2">
+                <p className="text-xs font-medium text-blue-300 mb-0.5">Meta Description</p>
+                <p className="text-xs text-blue-200">{blogArticle.meta_description}</p>
+                <p className="text-[10px] text-blue-400 mt-1">{blogArticle.meta_description.length} characters</p>
               </div>
 
               {/* Outline */}
               {blogArticle.outline.length > 0 && (
-                <div className="mt-3 rounded-md bg-gray-50 border border-gray-100 px-3 py-2">
-                  <p className="text-xs font-medium text-gray-700 mb-1.5">Makale Yapısı</p>
+                <div className="mt-3 rounded-md bg-white/[0.02] border border-white/[0.06] px-3 py-2">
+                  <p className="text-xs font-medium text-gray-300 mb-1.5">Article Outline</p>
                   <ul className="space-y-1">
                     {blogArticle.outline.map((section, i) => (
-                      <li key={i} className="text-xs text-gray-600 flex items-start gap-1.5">
-                        <span className="text-gray-400 font-mono">{i + 1}.</span>
+                      <li key={i} className="text-xs text-gray-400 flex items-start gap-1.5">
+                        <span className="text-gray-500 font-mono">{i + 1}.</span>
                         {section}
                       </li>
                     ))}
@@ -196,12 +202,12 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
             </div>
 
             {/* HTML Preview */}
-            <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
-              <div className="border-b border-gray-100 px-4 py-2 flex items-center gap-2">
-                <span className="text-xs font-medium text-gray-500">Önizleme</span>
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+              <div className="border-b border-white/[0.08] px-4 py-2 flex items-center gap-2">
+                <span className="text-xs font-medium text-gray-500">Preview</span>
               </div>
               <div
-                className="p-6 prose prose-sm max-w-none text-gray-800"
+                className="p-6 prose prose-sm prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             </div>

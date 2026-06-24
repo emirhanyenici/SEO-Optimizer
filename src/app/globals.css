@@ -172,6 +172,28 @@
   box-shadow: 0 0 40px rgba(24, 140, 255, 0.15);
 }
 
+/* Secondary accent (violet) — reserved for AI / GEO surfaces so blue and violet
+   keep distinct meaning across the product. */
+.violet-accent {
+  color: #a855f7;
+}
+
+.violet-accent-bg {
+  background-color: #a855f7;
+}
+
+/* Blue → violet sweep for AI/GEO headlines and feature highlights. */
+.gradient-text-violet {
+  background: linear-gradient(135deg, #188cff 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-violet {
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.15);
+}
+
 .card-dark {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);

@@ -11,48 +11,52 @@ interface AgentConfig {
   initial: string;
 }
 
-const AGENT_GROUPS: { section: string; agents: AgentConfig[] }[] = [
+// `accent` tints the section header — violet marks the AI/GEO surfaces (secondary
+// accent), everything else stays neutral so blue/violet keep distinct meaning.
+const AGENT_GROUPS: { section: string; accent?: 'violet'; agents: AgentConfig[] }[] = [
   {
-    section: 'YÖNETİM',
+    section: 'MANAGEMENT',
     agents: [
-      { id: 'orchestrator', label: 'SEO Orchestrator', desc: 'Tüm agentları yönetir, öncelik planı üretir', color: 'bg-blue-600', initial: 'O' },
+      { id: 'orchestrator', label: 'SEO Orchestrator', desc: 'Coordinates all agents, produces the priority plan', color: 'bg-blue-600', initial: 'O' },
     ],
   },
   {
-    section: 'FAZ 1',
+    section: 'PHASE 1',
     agents: [
-      { id: 'technical-auditor', label: 'Technical Audit', desc: 'robots.txt, canonical, redirect, sitemap', color: 'bg-red-500', initial: 'T' },
+      { id: 'technical-auditor', label: 'Technical Audit', desc: 'robots.txt, canonical, redirects, sitemap', color: 'bg-red-500', initial: 'T' },
       { id: 'page-speed', label: 'Page Speed', desc: 'Core Web Vitals — LCP, CLS, INP, TTFB', color: 'bg-yellow-500', initial: 'P' },
-      { id: 'meta-optimizer', label: 'Meta Optimizer', desc: 'Title CTR, meta açıklaması, H1, OG', color: 'bg-blue-500', initial: 'M' },
-      { id: 'ai-visibility', label: 'AI Visibility', desc: 'ChatGPT ve Perplexity alıntı hazırlığı', color: 'bg-pink-500', initial: 'A' },
-      { id: 'company-intelligence', label: 'Company Intelligence', desc: 'İş modeli, hedef kitle, strateji boşlukları', color: 'bg-teal-500', initial: 'C' },
+      { id: 'meta-optimizer', label: 'Meta Optimizer', desc: 'Title CTR, meta description, H1, OG', color: 'bg-blue-500', initial: 'M' },
+      { id: 'ai-visibility', label: 'AI Visibility', desc: 'ChatGPT and Perplexity citation readiness', color: 'bg-pink-500', initial: 'A' },
+      { id: 'company-intelligence', label: 'Company Intelligence', desc: 'Business model, audience, strategy gaps', color: 'bg-teal-500', initial: 'C' },
     ],
   },
   {
-    section: 'FAZ 2',
+    section: 'PHASE 2',
     agents: [
-      { id: 'internal-link', label: 'Internal Links', desc: 'Bağlantı grafiği, yetim sayfalar', color: 'bg-green-500', initial: 'L' },
-      { id: 'semantic-content', label: 'Semantic Content', desc: 'Topikal otorite, niyet eşleşmesi', color: 'bg-purple-500', initial: 'S' },
+      { id: 'internal-link', label: 'Internal Links', desc: 'Link graph, orphan pages', color: 'bg-green-500', initial: 'L' },
+      { id: 'semantic-content', label: 'Semantic Content', desc: 'Topical authority, intent match', color: 'bg-purple-500', initial: 'S' },
     ],
   },
   {
-    section: 'FAZ 3',
+    section: 'PHASE 3',
     agents: [
-      { id: 'cannibalization', label: 'Cannibalization', desc: 'Anahtar kelime çakışması, dilim kaybı', color: 'bg-orange-500', initial: 'C' },
-      { id: 'competitor-gap', label: 'Competitor Gap', desc: 'SERP verisi, rakip fırsatları', color: 'bg-cyan-500', initial: 'G' },
-      { id: 'feedback-analyzer', label: 'Feedback Analyzer', desc: 'Kök neden analizi, yüksek etkili düzeltmeler', color: 'bg-violet-500', initial: 'F' },
+      { id: 'cannibalization', label: 'Cannibalization', desc: 'Keyword overlap, ranking dilution', color: 'bg-orange-500', initial: 'C' },
+      { id: 'competitor-gap', label: 'Competitor Gap', desc: 'SERP data, competitor opportunities', color: 'bg-cyan-500', initial: 'G' },
+      { id: 'feedback-analyzer', label: 'Feedback Analyzer', desc: 'Root-cause analysis, high-impact fixes', color: 'bg-violet-500', initial: 'F' },
     ],
   },
   {
     section: 'GEO',
+    accent: 'violet',
     agents: [
-      { id: 'geo', label: 'GEO', desc: 'AI alıntı hazırlığı, rakiplerle karşılaştırma', color: 'bg-fuchsia-500', initial: 'G' },
+      { id: 'geo', label: 'GEO', desc: 'AI citation readiness, competitor comparison', color: 'bg-fuchsia-500', initial: 'G' },
     ],
   },
   {
-    section: 'İÇERİK',
+    section: 'CONTENT',
+    accent: 'violet',
     agents: [
-      { id: 'blog-writer', label: 'Blog Writer', desc: 'SEO odaklı tam blog yazısı üretir', color: 'bg-emerald-500', initial: 'B' },
+      { id: 'blog-writer', label: 'Blog Writer', desc: 'Generates a full SEO-focused blog post', color: 'bg-emerald-500', initial: 'B' },
     ],
   },
 ];
@@ -75,9 +79,11 @@ export function AgentSidebar({ onAgentClick }: Props) {
 
   return (
     <aside className="w-[240px] flex-shrink-0 border-r border-white/[0.06] overflow-y-auto py-3">
-      {AGENT_GROUPS.map(({ section, agents }) => (
+      {AGENT_GROUPS.map(({ section, accent, agents }) => (
         <div key={section} className="mb-4">
-          <p className="px-4 py-1 text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+          <p className={`px-4 py-1 text-[10px] font-semibold uppercase tracking-widest ${
+            accent === 'violet' ? 'text-violet-400/80' : 'text-gray-600'
+          }`}>
             {section}
           </p>
           {agents.map((agent) => {

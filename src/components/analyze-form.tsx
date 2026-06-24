@@ -75,7 +75,7 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
     e.preventDefault();
     if (!url.trim()) return;
     if (selectedAgents.length === 0 && !includeBlog) {
-      setError('En az bir ajan seçin');
+      setError('Select at least one agent');
       return;
     }
 
@@ -231,19 +231,19 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
             disabled={isLoading}
           />
           <p className="text-xs text-gray-600 mt-1">
-            GEO ajanı bunları sizin domaininizle karşılaştırır. Boş bırakırsanız SERP&apos;ten otomatik bulunur.
+            The GEO agent compares these against your domain. Leave empty to auto-discover from the SERP.
           </p>
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-300">Çalışacak ajanlar</label>
+            <label className="block text-sm font-medium text-gray-300">Agents to run</label>
             <button
               type="button"
               onClick={() => setSelectedAgents(allSelected ? [] : ANALYSIS_AGENT_IDS)}
               disabled={isLoading}
               className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50"
             >
-              {allSelected ? 'Hiçbiri' : 'Hepsi'}
+              {allSelected ? 'None' : 'All'}
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
@@ -270,7 +270,7 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
               );
             })}
           </div>
-          <p className="text-xs text-gray-600 mt-1">Yalnız seçili ajanlar çalışır — daha az ajan, daha düşük maliyet.</p>
+          <p className="text-xs text-gray-600 mt-1">Only the selected agents run — fewer agents, lower cost.</p>
         </div>
 
         <label className="flex items-start gap-2.5 cursor-pointer">
@@ -282,8 +282,8 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
             className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/5 accent-blue-600"
           />
           <span className="text-sm text-gray-300">
-            Blog yazısı da üret
-            <span className="block text-xs text-gray-500">En pahalı adım — varsayılan kapalı. Açarsanız 2500+ kelimelik SEO makalesi üretilir ve analiz maliyetini artırır.</span>
+            Also generate a blog post
+            <span className="block text-xs text-gray-500">The most expensive step — off by default. When enabled, it generates a 2,500+ word SEO article and increases the analysis cost.</span>
           </span>
         </label>
         <button
@@ -319,10 +319,10 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
         <>
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-2">
-              Analiz Raporu
+              Analysis Report
               {report.partial && (
                 <span className="text-xs px-1.5 py-0.5 rounded font-medium bg-amber-500/15 text-amber-300 normal-case tracking-normal">
-                  Kısmi
+                  Partial
                 </span>
               )}
             </h2>
@@ -330,8 +330,8 @@ export function AnalyzeForm({ onStarted }: AnalyzeFormProps = {}) {
           </div>
           {report.partial && (
             <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-300">
-              Analiz tamamlanmadan (akış kesildi) bitti. Bu rapor yalnızca başarıyla tamamlanan
-              ajanlardan oluşturuldu; sentez aşaması atlandı.
+              The analysis ended before completing (the stream was interrupted). This report was
+              built only from the agents that finished successfully; the synthesis step was skipped.
             </div>
           )}
           <PriorityActions
