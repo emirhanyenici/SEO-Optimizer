@@ -55,14 +55,14 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: '#188cff',
   },
   scoreCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
     borderWidth: 3,
-    borderColor: '#2563eb',
+    borderColor: '#188cff',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f9ff',
@@ -70,11 +70,10 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: '#188cff',
   },
   headerInfo: {
-    flex: 1,
-    marginLeft: 16,
+    width: '100%',
   },
   urlText: {
     fontSize: 10,
@@ -138,24 +137,26 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   rankCell: {
-    width: '8%',
+    width: '6%',
     fontWeight: 'bold',
   },
   severityCell: {
-    width: '12%',
+    width: '13%',
+    paddingRight: 8,
   },
   titleCell: {
-    width: '25%',
-    marginRight: 8,
+    width: '26%',
+    paddingRight: 10,
   },
   effortCell: {
-    width: '10%',
-    marginRight: 8,
+    width: '11%',
+    paddingRight: 8,
   },
   recommendationCell: {
     flex: 1,
   },
   severityBadge: {
+    alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 3,
@@ -170,9 +171,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#d97706',
   },
   opportunityBadge: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#188cff',
   },
   effortPill: {
+    alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 3,
@@ -201,13 +203,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
+  // AI / GEO surfaces carry the secondary (violet) accent, mirroring the web app.
+  agentTitleViolet: {
+    color: '#a855f7',
+    borderBottomColor: '#a855f7',
+  },
   findingCard: {
     backgroundColor: '#f9fafb',
     padding: 10,
     marginBottom: 10,
     borderRadius: 4,
     borderLeftWidth: 3,
-    borderLeftColor: '#2563eb',
+    borderLeftColor: '#188cff',
   },
   findingCardCritical: {
     borderLeftColor: '#dc2626',
@@ -216,7 +223,7 @@ const styles = StyleSheet.create({
     borderLeftColor: '#d97706',
   },
   findingCardOpportunity: {
-    borderLeftColor: '#2563eb',
+    borderLeftColor: '#188cff',
   },
   findingTitle: {
     fontSize: 10,
@@ -246,10 +253,18 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   recommendationBox: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#eff6ff',
+    borderLeftWidth: 2,
+    borderLeftColor: '#188cff',
     padding: 8,
     borderRadius: 3,
     marginTop: 6,
+  },
+  recommendationLabel: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#188cff',
+    marginBottom: 2,
   },
   evidenceList: {
     marginTop: 6,
@@ -361,11 +376,14 @@ const getSeverityColor = (
     case 'warning':
       return '#d97706';
     case 'opportunity':
-      return '#2563eb';
+      return '#188cff';
     default:
-      return '#2563eb';
+      return '#188cff';
   }
 };
+
+// Agents whose sections get the secondary violet accent (AI-search lenses).
+const AI_SURFACE = new Set(['ai-visibility', 'geo']);
 
 interface SEOReportDocumentProps {
   report: FinalSEOReport;
@@ -513,7 +531,13 @@ export function SEOReportDocument({ report }: SEOReportDocumentProps) {
           .filter((r) => r.agentId !== 'blog-writer' && r.findings.length > 0)
           .map((agentResult) => (
             <View key={agentResult.agentId} style={styles.agentSection}>
-              <Text style={styles.agentTitle}>
+              <Text
+                style={
+                  AI_SURFACE.has(agentResult.agentId)
+                    ? [styles.agentTitle, styles.agentTitleViolet]
+                    : styles.agentTitle
+                }
+              >
                 {AGENT_LABELS[agentResult.agentId]}
               </Text>
               {agentResult.findings.map((finding) => (
@@ -533,8 +557,8 @@ export function SEOReportDocument({ report }: SEOReportDocumentProps) {
                   <Text style={styles.findingText}>
                     {finding.description}
                   </Text>
-                  <Text style={styles.findingLabel}>Recommendation:</Text>
                   <View style={styles.recommendationBox}>
+                    <Text style={styles.recommendationLabel}>Recommendation</Text>
                     <Text style={styles.findingText}>
                       {finding.recommendation}
                     </Text>
