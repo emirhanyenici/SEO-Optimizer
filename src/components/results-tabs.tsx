@@ -116,7 +116,7 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
                         <p className="text-xs font-medium text-blue-300">Recommendation</p>
                         <p className="text-xs text-blue-200 mt-0.5">{finding.recommendation}</p>
                       </div>
-                      {finding.evidence && finding.evidence.length > 0 && (
+                      {Array.isArray(finding.evidence) && finding.evidence.length > 0 && (
                         <div className="mt-2 rounded-md bg-white/[0.02] border border-white/[0.06] px-3 py-2">
                           <p className="text-xs font-medium text-gray-300 mb-1">Evidence</p>
                           <ul className="text-xs text-gray-400 space-y-0.5">
@@ -186,7 +186,7 @@ export function ResultsTabs({ agentResults, blogArticle, baseUrl }: ResultsTabsP
               </div>
 
               {/* Outline */}
-              {blogArticle.outline.length > 0 && (
+              {Array.isArray(blogArticle.outline) && blogArticle.outline.length > 0 && (
                 <div className="mt-3 rounded-md bg-white/[0.02] border border-white/[0.06] px-3 py-2">
                   <p className="text-xs font-medium text-gray-300 mb-1.5">Article Outline</p>
                   <ul className="space-y-1">
